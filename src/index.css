@@ -1,0 +1,112 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@media only screen and (max-width: 600px) {  
+  .contactList{
+    display:flex;   
+    gap:6px;  
+    background-color:#1A73E8;
+    color: white; 
+    height:120px;  
+    overflow-x:scroll; 
+    max-width:100%; 
+    width:100%; 
+  }   
+  .contactList .profileCard{
+    border-style:double; 
+    position: relative; 
+    width: 250px; 
+    height: 250px; 
+    max-width: 300px;
+  }
+  .profileSection{
+    display:flex; 
+    gap:5px;  
+    padding: 5px;
+  } 
+  .profileSection:active{ 
+    background-color:white; 
+    color:black;
+  } 
+  .profileSection:hover{
+    background-color:white; 
+    color:black; 
+  }
+  .contactList .profileCard{ 
+    padding: 5px;
+  }
+
+  html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  } 
+ .pillButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  background-color: red;
+  padding: 10px 20px;
+  font-size: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  width: 200px; /* Fixed width */
+  height: 60px; /* Fixed height */
+  gap: 10px;
+}
+
+.pillButton .icon {
+  font-size: 24px;
+}
+
+.buttonText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.pillButton:hover {
+  background-color: grey;
+  transform: scale(1.1);
+}
+
+.gridMenu {
+  display: grid;
+  row-gap:5px; 
+  gap: 5px; /* Reduce gap to bring buttons closer */
+  align-items: center;
+  padding: 10px; /* Reduce padding if needed */
+} 
+
+#root{
+  width: 100%; 
+  height: 100%; 
+}
+
+.topBar{
+   background-color:#F7C5A8;  
+   padding: 10px; 
+   color:black;
+   height: 80px;   
+   width: 100vh;
+   display:flex;
+   gap: 5px;
+} 
+}
