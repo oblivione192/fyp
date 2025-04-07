@@ -1,0 +1,183 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@media only screen and (max-width: 600px) {   
+  .authform {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: #f5f5dc; /* Beige for better readability */
+    transform: translate(-50%, -50%);
+    padding: 20px;  /* Added padding for breathing space */
+    border-radius: 10px; /* Smooth edges */
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2); /* Soft shadow */
+    width: 90%; /* Responsive width */
+    max-width: 400px; /* Prevents it from being too wide */
+    text-align: center;
+}
+#welcome{
+  font-family:Verdana, Geneva, Tahoma, sans-serif; 
+  font-size: 32px; 
+  font-weight:bold;
+}
+.myFormGroup {
+    position: relative;
+    padding: 10px; /* Increased padding */
+    display: flex;
+    flex-direction: column; /* Stack inputs vertically */
+    font-size: 24px; /* Bigger font for elderly users */
+    font-family: Arial, sans-serif; /* More readable font */
+}
+
+input, button {
+    font-size: 22px; /* Large input size */
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+button {
+    background-color: #007bff; /* High contrast button */
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+  .contactList{
+    display:flex;   
+    gap:6px;  
+    background-color:#1A73E8;
+    color: white; 
+    height:120px;  
+    overflow-x:scroll; 
+    max-width:100%; 
+    width:100%; 
+  }   
+  .contactList .profileCard{
+    border-style:double; 
+    position: relative; 
+    width: 250px; 
+    height: 250px; 
+    max-width: 300px;
+  }
+  .profileSection{
+    display:flex; 
+    gap:5px;  
+    padding: 5px;
+  } 
+  .profileSection:active{ 
+    background-color:white; 
+    color:black;
+  } 
+  .profileSection:hover{
+    background-color:white; 
+    color:black; 
+  }
+  .contactList .profileCard{ 
+    padding: 5px;
+  }
+
+  html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }  
+ .optionBox{
+    display:flex; 
+    align-items:center;  
+    flex-direction: column; 
+    justify-content: center; 
+    padding: 10px 20px; 
+    font-size: 20px; 
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    color:white;  
+    transition: all 0.3s ease-in-out; 
+    width: 130px; 
+    height: 120px; 
+ }
+ .pillButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    background-color: red;
+    padding: 10px 20px;
+    font-size: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    width: 200px; /* Fixed width */
+    height: 60px; /* Fixed height */
+    gap: 10px;
+}
+
+.pillButton .icon {
+  font-size: 24px;
+}
+
+.buttonText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.optionBox:hover {
+  background-color: grey;
+  transform: scale(1.1);
+}
+
+.gridMenu {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 5px;
+  row-gap: 5px; 
+  gap: 5px;
+  align-items: center;
+} 
+
+#root{
+  width: 100%; 
+  height: 100%; 
+}
+#todaysDate{
+  height:100px;  
+  font-family: Georgia, serif;
+  justify-content:center; 
+  background-color: peachpuff; 
+  margin: 10px;
+  font-size: 22px; 
+  font-weight:bold;
+  padding: 8px;
+}
+.topBar{
+   background-color:#11b911;  
+   padding: 10px; 
+   color:white;
+   height: 80px;   
+   width: 100vh;
+   display:flex;
+   gap: 5px;
+} 
+}
