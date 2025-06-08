@@ -1,16 +1,47 @@
 body {
-  margin: 0;
+  margin: 0; 
+  background-image:url('/public/homeimage.jpg');
+  background-color:lightblue;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-@media only screen and (max-width: 600px) {   
-  .authform {
+ @media screen and (max-width : 600px) {
+   .topBar{
+   background-color:#3cd03c;  
+   padding: 10px;  
+   color:white;
+   height: 80px;   
+   width: 100vh;  
+   justify-content:space-between; 
+   align-items:space-between;
+   display:flex;
+  }  
+  #appointmentList {
+  margin-right: 20px;
+  height: 25rem;
+  max-height: 500px;
+  padding: 20px;
+  background-color: white;
+ } 
+ .topBar{
+   background-color:#3cd03c;  
+   padding: 10px;  
+   color:white;
+   height: 80px;   
+   width: 100%; 
+   display:flex; 
+   justify-content:space-between; 
+ }  
+} 
+
+.authform {
     position: absolute;
     top: 50%;
     left: 50%;
+
     background-color: #f5f5dc; /* Beige for better readability */
     transform: translate(-50%, -50%);
     padding: 20px;  /* Added padding for breathing space */
@@ -41,6 +72,44 @@ input, button {
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-top: 5px;
+}   
+.checkBox{
+  width:32px;
+  height:32px;
+}
+.actionBar{
+  display:flex;    
+  gap: 10px;
+} 
+.actionBar button{
+  height: 50px;  
+  width: 110px; 
+  font-size: 16px;
+}
+.actionBarButton{
+  width:125px; 
+  height:60px; 
+  font-size:16px; 
+} 
+.actionBarButton:active{ 
+  background-color:green;  
+} 
+
+#displayedAppointments{
+  overflow-y:auto;  
+  overflow-x:hidden;
+  max-height:15.625em; 
+}
+#appointmentList {
+  margin-right: 20px;
+  display: flex;                /* Enable Flexbox */
+  flex-direction: column;       /* Stack items vertically */
+  justify-content: center;      /* Vertical centering */
+  align-items: center;          /* Horizontal centering */
+  height: 25rem;
+  max-height: 500px;
+  padding: 20px;
+  background-color: white;
 }
 
 button {
@@ -71,11 +140,19 @@ button:hover {
     width: 250px; 
     height: 250px; 
     max-width: 300px;
+  } 
+  .notificationSection{
+    display:flex;
+    gap: 5px; 
+    align-items:center;
+    padding: 5px;
   }
   .profileSection{
-    display:flex; 
-    gap:5px;  
-    padding: 5px;
+    display:flex;   
+    align-items:center;
+    gap:5px;   
+    height:100%; 
+    padding-right: 90px;
   } 
   .profileSection:active{ 
     background-color:white; 
@@ -100,7 +177,11 @@ button:hover {
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }  
+  }   
+ .icon{
+  width: 60px; 
+  height: 60px;
+ }
  .optionBox{
     display:flex; 
     align-items:center;  
@@ -111,9 +192,9 @@ button:hover {
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     color:white;  
     transition: all 0.3s ease-in-out; 
-    width: 130px; 
     height: 120px; 
- }
+ } 
+ 
  .pillButton {
     display: flex;
     align-items: center;
@@ -131,16 +212,42 @@ button:hover {
     gap: 10px;
 }
 
-.pillButton .icon {
-  font-size: 24px;
+.pillButton .icon { 
+  height:72px; 
+  width:72px; 
+  font-size: 36px;
 }
-
+#appointmentSelect{ 
+  position:static;
+  padding: 12px 16px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: 2px solid #6FAF98;
+  background-color: #f9f9f9;
+  color: #333;
+  font-weight: bold;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  outline: none; 
+  align-self:center;
+}
 .buttonText {
-  white-space: nowrap;
+  white-space: nowrap; 
+  font-weight:bold; 
+
   overflow: hidden;
   text-overflow: ellipsis;
   flex-grow: 1;
   text-align: center;
+}
+.card{
+  padding: 8px; 
+  border-style:solid; 
+  text-align:left;
+  border-radius:20px; 
+  
 }
 
 .optionBox:hover {
@@ -150,7 +257,7 @@ button:hover {
 
 .gridMenu {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   margin: 5px;
   row-gap: 5px; 
   gap: 5px;
@@ -162,22 +269,34 @@ button:hover {
   height: 100%; 
 }
 #todaysDate{
-  height:100px;  
-  font-family: Georgia, serif;
+  height:100px;   
+  text-align:center;
   justify-content:center; 
-  background-color: peachpuff; 
+  background-color: rgb(192, 169, 150); 
   margin: 10px;
   font-size: 22px; 
   font-weight:bold;
   padding: 8px;
-}
+} 
+#welcomeTopBar{
+  background-color:red; 
+  padding:2px;  
+  color:white;
+  font-size: 13px; 
+} 
+#welcome{
+  font-size: 22px;
+  align-items:center;
+} 
+
 .topBar{
-   background-color:#11b911;  
-   padding: 10px; 
+   background-color:#3cd03c;  
+   padding: 10px;  
    color:white;
    height: 80px;   
-   width: 100vh;
-   display:flex;
-   gap: 5px;
-} 
-}
+   width: 100%; 
+   display:flex; 
+   justify-content:space-evenly; 
+   
+}  
+
