@@ -12,7 +12,7 @@ export default class ProfileController{
              headers: this.headers
            }
          )  
-         const profile = await resp.json(); 
+         const profile = await resp.json();  
          return profile;  
         } 
         catch(err){

@@ -6,45 +6,8 @@ import OptionBox from '../../components/OptionBox';
 import API from '../../controllers';
 import {useSelector,useDispatch} from 'react-redux';  
 import { initProfile } from '../../reducers/profileReducer'; 
-
-function Clock(){ 
-   const showFormattedDate = function(){ 
-      const now = new Date();
-      const formattedDate = now.toLocaleDateString(undefined, {
-         weekday: 'long',
-         year: 'numeric',
-         month: 'long',
-         day: 'numeric'
-      }); 
-
-      return formattedDate;
-     } 
-   const showFormattedTime = function(){  
-      const now = new Date();
-      const formattedTime = now.toLocaleTimeString(undefined, {
-         hour: '2-digit',
-         minute: '2-digit',
-         hour12: true // Set to false for 24-hour format
-      });
-      return formattedTime; 
-   }
-
-   const [todayDate, setTodayDate] = useState(showFormattedDate()); 
-   const [timeNow, setTimeNow]= useState(showFormattedTime());  
-
-   setInterval(()=>{
-      setTodayDate(showFormattedDate());
-      setTimeNow(showFormattedTime()); 
-   },1000)
-
-   return(
-    <div id="todaysDate" > 
-      
-      <p><FaClock />{" "+todayDate}</p>
-      <p>{timeNow}</p>
-    </div>
-   )
-}
+import Clock from '../../components/Clock';
+import useProfile from '../../hooks/useProfile';
 function calculateAge(icnumber) {
   const birthYearLastTwoDigits = parseInt(icnumber.slice(0, 2), 10);
   const birthMonth = parseInt(icnumber.slice(2, 4), 10) - 1; 
@@ -79,7 +42,8 @@ function calculateAge(icnumber) {
 function HomePage() {    
     const navigate = useNavigate();  
     const location = useLocation();    
-    const dispatch = useDispatch(); 
+    const dispatch = useDispatch();  
+    const getProfile = useProfile(); 
     const isInit = useSelector(state => state.Profile.init);  
     const authToken = useSelector(state=> state.Auth.authToken);  
     const gotoAppointments = () => {
@@ -96,8 +60,7 @@ function HomePage() {
       
       if(!isInit){ 
          console.log(API.getHeaders()); 
-         const ProfileController = API.getController('profile'); 
-         ProfileController.getProfile("User")
+         getProfile('User')
          .then((profile)=>{  
             const userAge = calculateAge(profile.icnumber);
             dispatch(initProfile({...profile,age:userAge})) 
@@ -106,17 +69,10 @@ function HomePage() {
             console.error(err); 
          }) 
       }
-    },[isInit,dispatch,authToken])   
+    },[isInit,dispatch,authToken,getProfile])   
     
-     useEffect(() => {
-            if (location.pathname === '/home') {
-                document.body.style.backgroundImage = 'none';
-                document.body.style.backgroundColor = '#b6a8f0';
-                document.body.style.backgroundRepeat = '';
-                document.body.style.backgroundSize = '';
-                document.body.style.backgroundPosition = '';
-            }
-        }, [location]);
+    
+
     return (  
         <div>
             <Clock />

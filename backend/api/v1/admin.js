@@ -44,7 +44,7 @@ adminRouter.post("/login",async(req,res)=>{
                 const user_id = await adminDao.getUserIdByUsernameAndClinic(username,clinicNo);   
                 let clinicDao = new ClinicDao(); 
                 let clinic = await clinicDao.getClinicByRegNo(clinicNo); 
-                const token = jwt.sign({user_id:user_id,username:username,clinicId:clinic[0].ClinicId},process.env.COOKIE_SECRET,
+                const token = jwt.sign({user_id:{user_id:user_id.AdminId},username:username,clinicId:clinic[0].ClinicId},process.env.COOKIE_SECRET,
                     {
                         expiresIn: 3600,
                     }

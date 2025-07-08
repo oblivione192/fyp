@@ -13,6 +13,7 @@ export default class ServiceDao {
     return new Promise((resolve, reject) => {
       this.db.query(query, (err, results) => {
         if (err) return reject(err);
+       
         resolve(results);
       });
     });

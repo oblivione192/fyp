@@ -142,7 +142,7 @@ appointmentRouter.get("/getServices", async (req, res) => {
 appointmentRouter.put("/openSlot", async (req, res) => {
   const { slot_id, clinic_id } = req.body;
   try {
-    const result = await openClinicSlot(clinic_id, slot_id);
+    const result = await slotDao.openClinicSlot(clinic_id, slot_id);
     if (result) {
       return res.send({ status: "Success" });
     }

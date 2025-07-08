@@ -224,19 +224,9 @@ function AppointmentList({ appointments }) {
 
 // Main Appointment page
 export default function Appointment() {
-    const navigate = useNavigate();
-    const location = useLocation();     
+    const navigate = useNavigate(); 
     const appointments = useAppointment()
 
-    useEffect(() => {
-        if (location.pathname === '/appointment') {
-            document.body.style.backgroundImage = 'none';
-            document.body.style.backgroundColor = '#b6a8f0';
-            document.body.style.backgroundRepeat = '';
-            document.body.style.backgroundSize = '';
-            document.body.style.backgroundPosition = '';
-        }
-    }, [location]);
 
     return ( 
         

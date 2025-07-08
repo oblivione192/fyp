@@ -35,7 +35,7 @@ createSlice(
          clear:function(state){
              Object.assign(state, initialState);  
              state.haveExistingRecord = false; 
-         } 
+         }
      }
 } 
 ) 

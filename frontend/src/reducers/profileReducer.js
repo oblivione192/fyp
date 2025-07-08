@@ -23,7 +23,7 @@ const profileSlice = createSlice(
              },
              updateProfile: function(state,action){ 
                  Object.assign(state.profile,action.payload); 
-             }
+             } 
          }
     }
 ) 

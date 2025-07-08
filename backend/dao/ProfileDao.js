@@ -10,22 +10,27 @@ export default class ProfileDao{
     //Part of the Users and Doctors and Admins table
     async getProfile(userType, user_id) {
         let query = "";
-
-        switch (userType) {
-            case "User":
-                query = "SELECT fname, mname, lname, picture, icnumber, email, address FROM user WHERE user_id = ?";
-                break;
-            case "Doctor":
-                query = "SELECT fname, mname, lname, dob, email, contactNO, degree, picture FROM doctor WHERE DoctorId = ?";
-                break;
-            case "Admin": 
-                query = "SELECT name,email, password FROM admin WHERE AdminId = ?" 
-                break; 
-            default:
-                throw new Error("Invalid user type");
+        try{
+             switch (userType) {
+              case "User":
+                  query = "SELECT fname, mname, lname, picture, icnumber, email, address FROM user WHERE user_id = ?";
+                  break;
+              case "Doctor":
+                  query = "SELECT fname, mname, lname, dob, email, contactNO, degree, picture FROM doctor WHERE DoctorId = ?";
+                  break;
+              case "Admin": 
+                  query = "SELECT name as username,email FROM admin WHERE AdminId = ?"   
+                  break; 
+              default:
+                  throw new Error("Invalid user type");
         }
 
         return this.executeQuery(query,[user_id]); 
+        }
+        catch(err){ 
+          console.log(err); 
+          return err.message
+        }
     }
       async updateProfile(userType, field, value, user_id) {
         const validRoles = ["User", "Doctor"];

@@ -1,34 +1,16 @@
 import { CgProfile,CgLogOut } from "react-icons/cg"; 
 import { FaBell} from 'react-icons/fa'; 
 import {useNavigate} from 'react-router-dom';
-import {useDispatch, useSelector} from 'react-redux';  
-import { setLoggedIn } from "./reducers/authReducer"; 
-import { clearAll } from "./reducers/appointmentReducer";
+import {useSelector,useDispatch} from 'react-redux';  
+
 import React from "react";
 export default function MyProfileBar(){ 
   const navigate = useNavigate();   
   const dispatch = useDispatch(); 
-  const username = useSelector(state => state.Profile.profile.fname); 
+  const username = useSelector(state => state.Profile.profile.fname ||  state.Profile.profile.username); 
   
   const handleLogout = ()=>{ 
-       sessionStorage.removeItem('loggedIn');     
-       sessionStorage.removeItem('token');   
-
-       localStorage.removeItem('token');  
-       localStorage.removeItem('AppointmentCount');  
-       localStorage.removeItem('rememberMe'); 
-       dispatch(
-          setLoggedIn(
-            {
-              loggedIn: false, 
-              authToken: null, 
-            }
-          )
-       ) 
-       dispatch(
-          clearAll()
-       )
-       navigate('/login'); 
+       dispatch({type:'LOG_OUT'})
   }
   return( 
     <React.Fragment>

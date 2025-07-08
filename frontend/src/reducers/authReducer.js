@@ -23,7 +23,7 @@ const authReducer= createSlice(
                 state.sessionExpired = true; 
                 state.isLoggedIn = false; 
                 state.authToken = null; 
-            }
+            } 
         }
     }
 ) 

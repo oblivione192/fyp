@@ -16,7 +16,7 @@ class API {
   static #controllers = null;
 
   static #initControllers() {
-    console.log("Request headers:",this.headers);
+    console.log("Request headers ", this.Headers );
     this.#controllers = {
       appointment: new AppointmentController(this.Headers),
       medication: new MedicationController(this.Headers),
@@ -29,10 +29,13 @@ class API {
      return this.Headers;
   }
   static updateHeaders(entry){
-     Object.assign(this.headers,entry);  
+    
+     Object.assign(this.Headers,entry);  
      this.#controllers = null; 
   }
-  static getController(name) {
+  static getController(name) {  
+    console.log("Headers: ",this.Headers);  
+    console.log("Controller Name: ",name)
     if (!this.#controllers) {
       this.#initControllers();
     }

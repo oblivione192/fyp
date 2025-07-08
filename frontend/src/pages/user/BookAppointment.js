@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'; 
+import { useEffect, useRef, useState} from 'react'; 
 import { IoMdArrowBack } from "react-icons/io" 
 import {AiFillHome} from "react-icons/ai"
 import {useNavigate} from 'react-router-dom';  
 import { useDispatch } from 'react-redux';   
 import API from '../../controllers/';
 import { AddAppointment,setChangesRead} from '../../reducers/appointmentReducer.js'; 
+
 import React from 'react';
 
 
@@ -12,10 +13,6 @@ function AppointmentProcedure({ step, setStep }) {
   const navigate = useNavigate(); 
   const dispatch = useDispatch();   
 
-
-
- 
-   
   const SlotId =  useRef('');   
   const PatientId = useRef('');   
   const service_id = useRef('');  
@@ -28,7 +25,6 @@ function AppointmentProcedure({ step, setStep }) {
   const [services,setServices] =  useState(null); 
   const [clinics, setClinics] = useState(null); 
   const [slots, setSlots] = useState(null);  
-
   useEffect(()=>{
       switch(step){
         case 1:  

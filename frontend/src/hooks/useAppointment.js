@@ -12,8 +12,10 @@ export default function useAppointment(){
     useEffect(()=>{   
     
        API.getController('appointment')
-       .getAppointmentCount(isModifiedInBackend).then((count)=>{
-        if(totalAppointments < count){
+       .getAppointmentCount(isModifiedInBackend).then((count)=>{ 
+    
+        if(totalAppointments < Number(count)){
+            
             API.getController('appointment').getUserAppointments(totalPages + 1)
             .then((appointments)=>{
                 dispatch(AddAppointments(

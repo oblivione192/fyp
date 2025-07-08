@@ -5,9 +5,8 @@ import {Provider} from 'react-redux';
 import store from './reducers';
 import App from './App';
 import reportWebVitals from './reportWebVitals';  
-import { AdminLogin } from './pages/admin';
 import API from './controllers';
-import { CgWindows } from 'react-icons/cg';
+import Event from './listeners/onLogIn';
 
 let currentAuthState = {
   isLoggedIn: store.getState().Auth.isLoggedIn,
@@ -18,29 +17,60 @@ window.onbeforeunload = function(){
   if(!localStorage.getItem("token")){ 
       localStorage.clear(); 
   }
-}
-const unsubscribe = store.subscribe(() => {
+}  
+Event.onLogIn((next)=>{
+
+})
+store.subscribe(()=>{
   const previous = currentAuthState;
-  const next = store.getState().Auth;
+  const next = store.getState().Auth; 
+  
+  if (
+    previous.isLoggedIn !== next.isLoggedIn 
+  ) { 
+    if (next.isLoggedIn){
+       switch(next.userRole){
+          case "user":  
+            document.body.style.backgroundImage='none'; 
+            document.body.style.backgroundColor="#bbf7ab";
+            break;
+          case "admin":  
+             document.body.style.backgroundImage='none';
+             document.body.style.backgroundColor="#FFE5B4";
+             break; 
+           default:
+             break; 
+       }
+    }
+  }
+})  
+
+//api set up on log in.
+
+ store.subscribe(() => {
+  const previous = currentAuthState;
+  const next = store.getState().Auth; 
+
   if (
     previous.isLoggedIn !== next.isLoggedIn ||
     previous.authToken !== next.authToken
   ) { 
-    console.log("Setting up APIs")
     currentAuthState = {
       isLoggedIn: next.isLoggedIn,
       authToken: next.authToken,
-    };
-
-    if (next.isLoggedIn && !API.getHeaders()) {
+    };  
+  
+    if (next.isLoggedIn && !API.getHeaders()) { 
+      console.log("Setting up API"); 
       API.setHeaders({
         "Content-Type": "application/json",
         "Authorization": `Bearer ${next.authToken}`,
-      });
-    } else {
-      API.setHeaders({}); 
+      }); 
+  
+    } else { 
+      console.log("Clearing headers"); 
+      API.setHeaders(null); 
       localStorage.clear();
-      unsubscribe();
     }
   }
 }); 

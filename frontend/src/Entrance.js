@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Outlet } from "react-router-dom";
 export default function Entrance(){   
   document.body.style.backgroundImage = "url('/homeimage.jpg')";
   document.body.style.backgroundPosition = "center";
@@ -7,7 +7,8 @@ export default function Entrance(){
      <React.Fragment> 
        <div id="welcomeTopBar">
         <p id="welcome">Welcome to EasyMed Appointment</p>  
-       </div>  
+       </div>   
+       <Outlet/>
      </React.Fragment>
     )
 }

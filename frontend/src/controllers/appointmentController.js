@@ -45,7 +45,8 @@ class AppointmentController{
      async getAppointmentCount({isModifiedInBackend}){   
           if(!localStorage.getItem("AppointmentCount") || 
              isModifiedInBackend
-          ){
+          ){ 
+              console.log("Request headers for appointment: " ,this.headers);
               const totalAppointments = await fetch("/api/appointment/count",
                   {
                       headers:this.headers
@@ -56,11 +57,12 @@ class AppointmentController{
               })
               .then((result)=>{ 
                 localStorage.setItem("AppointmentCount",result); 
-                return result.totalAppointments
+                return result
               }) 
               return totalAppointments;
           }
-          else{
+          else{ 
+  
              return localStorage.getItem("AppointmentCount"); 
           }
     }
@@ -94,7 +96,8 @@ class AppointmentController{
         }) 
         return appointments; 
     } 
-     async getUserAppointments(page){
+     async getUserAppointments(page){ 
+    
       const appointments =  await fetch("/api/appointment/getAppointment?option=BySelf&page="+page,
         {
            headers : this.headers

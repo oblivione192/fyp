@@ -60,7 +60,7 @@ const AppointmentsReducer = createSlice({
     },
     setChangesRead : (state,action) =>{
         state.modifiedInBackend = !action.payload.isRead;
-    } 
+    }
   },
 });
 
