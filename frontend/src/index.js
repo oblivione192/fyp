@@ -6,7 +6,8 @@ import store from './reducers';
 import App from './App';
 import reportWebVitals from './reportWebVitals';  
 import API from './controllers';
-import Event from './listeners/onLogIn';
+import Event from './listeners/onLogIn'; 
+
 
 let currentAuthState = {
   isLoggedIn: store.getState().Auth.isLoggedIn,
@@ -36,7 +37,7 @@ store.subscribe(()=>{
             break;
           case "admin":  
              document.body.style.backgroundImage='none';
-             document.body.style.backgroundColor="#FFE5B4";
+             document.body.style.backgroundColor="#e4ebe5";
              break; 
            default:
              break; 
@@ -81,9 +82,9 @@ store.subscribe(()=>{
 const root = ReactDOM.createRoot(document.getElementById('root')); 
 root.render( 
  <Provider store={store}> 
-    <React.StrictMode> 
+  
       <App/> 
-    </React.StrictMode>
+    
  </Provider>
   
 );

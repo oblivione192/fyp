@@ -19,7 +19,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-const db= getFirestore();   
+const db= getFirestore();    
+
 connectFirestoreEmulator(db, '127.0.0.1', 2029);
 
 export default db; 

@@ -14,7 +14,7 @@ const validRoutes = new Set();
 app.use(cookieParser(process.env.COOKIE_SECRET))
 app.use((req, res, next) => {
   console.log(req.path);
-
+  
   if (
     req.path !== "/" && 
     !req.path.match("/auth/*") &&
@@ -38,10 +38,11 @@ app.use((req, res, next) => {
       }
 
       const userId = decoded.user_id?.user_id;
-
+      req.clinicId = decoded?.clinicId;  
       req.user_id = userId; 
-
-      console.log("Decoded:", decoded);  
+      
+      console.log("Decoded:", decoded); 
+      console.log(req.clinicId);  
       console.log(req.user_id); 
       next(); // ✅ Now correctly waits until token is verified
     });

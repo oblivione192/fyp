@@ -2,17 +2,21 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   appointments: [],
-  currentPage: 1, 
-  modifiedInBackend: false, 
+  currentPage: 1,  
   totalPages: 0,
   pageSize: 5,
+  fetched: false,
   totalAppointments: 0,
 };
 //Adds all the appointments.
 const AppointmentsReducer = createSlice({
   name: 'Appointment',
   initialState,
-  reducers: {
+  reducers: { 
+    setFetchedAppointments:(state,action) =>{  
+      //expects action.payload to be true or false. 
+       state.fetched =  action.payload; 
+    },
     InitAllAppointments: (state, action) => {
       state.appointments = [...action.payload.appointments];
       state.totalAppointments = state.appointments.length;
@@ -22,13 +26,11 @@ const AppointmentsReducer = createSlice({
       state.appointments.push(action.payload.newAppointment);
       state.totalAppointments += 1;
       state.totalPages = Math.ceil(state.totalAppointments / state.pageSize); 
-      state.modifiedInBackend = true
     }, 
     AddAppointments:(state,action)=> { 
        state.appointments.push(...action.payload.appointments); 
        state.totalAppointments += action.payload.appointments.length; 
        state.totalPages =  Math.ceil(state.totalAppointments / state.pageSize);  
-       state.modifiedInBackend = true
     }, 
     RemoveAppointment: (state, action) => {
       state.appointments = state.appointments.filter(
@@ -36,7 +38,6 @@ const AppointmentsReducer = createSlice({
       );
       state.totalAppointments -= 1;
       state.totalPages = Math.ceil(state.totalAppointments / state.pageSize); 
-      state.modifiedInBackend = true
     },
     UpdateAppointment: (state, action) => {
         const index = state.appointments.findIndex(
@@ -58,21 +59,20 @@ const AppointmentsReducer = createSlice({
       state.currentPage = 1;
       state.totalPages = 1;
     },
-    setChangesRead : (state,action) =>{
-        state.modifiedInBackend = !action.payload.isRead;
-    }
+   
   },
 });
 
 export const {
   updateTotalPages,
+  setFetchedAppointments,
   InitAllAppointments,
   AddAppointment,
   AddAppointments,
   RemoveAppointment,
   UpdateAppointment,
   updateCurrentPage,
-  setChangesRead,
+  setChangesRead, 
   clearAll,
 } = AppointmentsReducer.actions;
 

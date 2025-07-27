@@ -1,39 +1,50 @@
-import { useDispatch,useSelector } from "react-redux"; 
 import { useEffect } from "react";
-import { AddAppointments,setChangesRead } from "../reducers/appointmentReducer";
-import API from "../controllers";
-export default function useAppointment(){ 
-     const dispatch = useDispatch();   
-    
-     const totalAppointments = useSelector(state => state.Appointment.totalAppointments); 
-     const isModifiedInBackend = useSelector(state => state.Appointment.modifiedInBackend); 
-     const totalPages = useSelector(state => state.Appointment.totalPages) 
-     const appointments = useSelector(state => state.Appointment.appointments); 
-    useEffect(()=>{   
-    
-       API.getController('appointment')
-       .getAppointmentCount(isModifiedInBackend).then((count)=>{ 
-    
-        if(totalAppointments < Number(count)){
-            
-            API.getController('appointment').getUserAppointments(totalPages + 1)
-            .then((appointments)=>{
-                dispatch(AddAppointments(
-                    {
-                        appointments: appointments
-                    }
-                ))
-            })
-          }
-          else{
-             dispatch(setChangesRead({
-                isRead: true
-             })) 
-          }
-          
-        }); 
-     
-    },[dispatch,totalAppointments,isModifiedInBackend,totalPages]) 
+import { useDispatch, useSelector } from "react-redux";
+import API from "../controllers/"
+import { AddAppointments, setFetchedAppointments} from "../reducers/appointmentReducer.js"
 
-    return appointments;
+export default function useAppointment(options) {
+  const dispatch = useDispatch();
+  const appointments = useSelector(state => state.Appointment.appointments);
+  const isAppointmentFetched = useSelector(state => state.Appointment.fetched); 
+ useEffect(() => {
+  const controller = API.getController("appointment");
+
+  async function fetchAppointments() {
+    try {
+      const count = await controller.getAppointmentCount({
+        option: options.option, 
+      });
+      if (!isAppointmentFetched) {
+        const pageSize = 5;
+        const totalPages = Math.ceil(Number(count) / pageSize);
+        const pagePromises = [];
+
+        for (let page = 1; page <= totalPages; page++) {
+          pagePromises.push(
+            controller.getAppointments(page, {
+              option: options.option
+            })
+          );
+        }
+
+        const allPages = await Promise.all(pagePromises);
+        const fetchedAppointmentList = allPages.flat(); 
+        
+       dispatch(AddAppointments({ appointments: fetchedAppointmentList }));
+       dispatch(setFetchedAppointments(true));
+
+      }
+    } catch (err) {
+      console.error("Error fetching appointments:", err);
+    }
+  }
+ 
+   fetchAppointments(); 
+  
+  
+   
+}, [dispatch, options.option, isAppointmentFetched]);
+
+  return appointments;
 }

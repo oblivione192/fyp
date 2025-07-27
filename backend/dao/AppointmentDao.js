@@ -1,9 +1,21 @@
 import { escapeId } from 'mysql2';
 import db from '../db/mysql.js';
+import buildUpdateQuery from './buildUpdateQuery.js'; 
+import checkFieldExists from './checkFieldExists.js';
 
 export default class AppointmentDao {
   constructor() {
     this.db = db;
+  } 
+  async getClinicAppointmentCount(ClinicId){
+    const query = ` 
+    SELECT COUNT(*) AS totalAppointments FROM Appointment a 
+    JOIN Slot s ON s.SlotId = a.SlotId 
+    JOIN Clinic c ON c.ClinicId = s.ClinicId 
+    WHERE c.ClinicId = ?;  
+    ` 
+    const result = await this.executeQuery(query,[ClinicId]); 
+    return result[0].totalAppointments 
   } 
   async getUserAppointmentCount(PatientId){
     const query = `
@@ -101,7 +113,36 @@ export default class AppointmentDao {
 
     return this.executeQuery(query,[PatientId]); 
   } 
-
+  async getClinicAppointments(ClinicId, page, itemsPerPage){
+    const offset = itemsPerPage * (page - 1);  
+    const query = 
+    ` 
+      SELECT 
+        CONCAT(u.fname, ' ', u.mname, ' ', u.lname) AS patient_name,
+        c.address,
+        c.clinicId, 
+        c.name AS clinicName, 
+        a.AppointmentId,  
+        a.attended,
+        a.CONFIRMED as confirmed, 
+        s.SlotDate as date,
+        a.startTime,
+        a.endTime,
+        CASE 
+          WHEN d.DoctorId IS NOT NULL THEN CONCAT('Dr. ', d.fname)
+          ELSE NULL
+        END AS doctorName
+        FROM Clinic c
+        JOIN Slot s ON s.ClinicId = c.ClinicId
+        JOIN Appointment a ON a.SlotId = s.SlotId
+        JOIN User u ON a.PatientId = u.user_id
+        LEFT JOIN Doctor d ON a.DoctorId = d.DoctorId
+        WHERE c.ClinicId = ? 
+        LIMIT ${itemsPerPage}
+        OFFSET ${offset}
+    ` 
+    return this.executeQuery(query,[ClinicId])
+  }
   async getUserAppointments(PatientId, page, itemsPerPage){    
     console.log("Patient Id: ",PatientId)
     const offset =  itemsPerPage * (page - 1); 
@@ -188,25 +229,28 @@ export default class AppointmentDao {
     return this.executeQuery(query, [PatientId]);
   }
 
-  async listAppointmentsByDate(date) {
+  async listClinicAppointmentsByDate(date,clinicId) {
     const query = `
-      SELECT a.*, CONCAT(u.fname,u.mname,u.lname) AS patientName, d.DoctorId, s.slotDate
+      SELECT 
+        a.*, 
+        CONCAT(u.fname, u.mname, u.lname) AS patientName, 
+        d.DoctorId, 
+        s.slotDate AS date
       FROM Appointment a
-      JOIN User u ON a.PatientId = u.user_id
-      JOIN Doctor d ON a.DoctorId = d.DoctorId
-      JOIN Slot s ON a.SlotId = s.SlotId
-      WHERE a.date = ?
-    `;
-
-    return this.executeQuery(query, [date]);
+      JOIN User u ON a.PatientId = u.user_id 
+      LEFT JOIN Doctor d ON a.DoctorId = d.DoctorId  
+      JOIN Slot s ON a.SlotId = s.SlotId AND s.slotDate = ? 
+      JOIN Clinic c on c.ClinicId = s.ClinicId AND c.ClinicId = ?
+     `;
+    return this.executeQuery(query, [date,clinicId]);
   }
 
   async createAppointment(SlotId, DoctorId, PatientId, data = {}) {0
     const { date, visit_purpose, startTime, endTime } = data;
     const query = `
       INSERT INTO Appointment 
-        (SlotId, DoctorId, PatientId, visit_purpose, startTime, endTime, CONFIRMED) 
-      VALUES (?, ?, ?, ?, ?, ?, 0)
+        (SlotId, DoctorId, PatientId, visit_purpose, startTime, endTime, CONFIRMED,Date_Booked) 
+      VALUES (?, ?, ?, ?, ?, ?, 0, NOW())
     `;
 
     const result = await this.executeQuery(query, [SlotId, DoctorId, PatientId, visit_purpose, startTime, endTime]);
@@ -224,7 +268,9 @@ export default class AppointmentDao {
     const result = await this.executeQuery(query, [AppointmentId]);
     return result.affectedRows > 0;
   }
-  async updateAppointment(AppointmentId,field,newValue){ 
+  async updateAppointment(AppointmentId,field,newValue){
+    console.log('Executing update Appointment')
+    console.log(field,newValue); 
     const escField= escapeId(field); 
     const query = 
     ` 
@@ -236,26 +282,13 @@ export default class AppointmentDao {
     return result.affectedRows > 0;  
   } 
   
-  async updateAppointment(AppointmentId, data = {}) {
-     if (!AppointmentId || Object.keys(data).length === 0) return false;
+  // async updateAppointment(AppointmentId, data = {}) {
+  //    if (!AppointmentId || Object.keys(data).length === 0) return false;
 
-      const fields = Object.keys(data);
-      const values = Object.values(data);
-
-      // Join keys with placeholders
-      const updateQuery = fields.map(field => `${field} = ?`).join(', ');
-
-      const query = `
-        UPDATE Appointment 
-        SET ${updateQuery}
-        WHERE AppointmentId = ?
-      `;
-
-      values.push(AppointmentId); // Add AppointmentId to the end for WHERE clause
-
-      const result = await this.executeQuery(query, values);
-      return result.affectedRows > 0;
-  }
+  //     const query = await buildUpdateQuery('appointment',fields,'AppointmentId',AppointmentId,checkFieldExists)
+  //     const result = await this.executeQuery(query, values);
+  //     return result.affectedRows > 0;
+  // }
 
   // ✅ Reusable method for all DB queries
   executeQuery(query, params = []) {

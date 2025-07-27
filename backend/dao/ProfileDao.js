@@ -9,6 +9,7 @@ export default class ProfileDao{
 
     //Part of the Users and Doctors and Admins table
     async getProfile(userType, user_id) {
+        userType = userType.charAt(0).toUpperCase() + userType.slice(1).toLowerCase()
         let query = "";
         try{
              switch (userType) {
@@ -33,30 +34,38 @@ export default class ProfileDao{
         }
     }
       async updateProfile(userType, field, value, user_id) {
-        const validRoles = ["User", "Doctor"];
-
-        // Check if userType is valid
-        if (!validRoles.includes(userType)) {
-            throw new Error("Invalid role provided");
-        }
+          const validRoles = ["User", "Doctor", "Admin"];
+          
         
-        const fieldExists =  await checkFieldExists(); 
-      
-        if (!fieldExists) {
-            throw new Error("Invalid field provided");
-        }
+          userType = userType.charAt(0).toUpperCase() + userType.slice(1).toLowerCase();
+          
+        
+          if (!validRoles.includes(userType)) {
+              throw new Error("Invalid role provided");
+          }
+        
+          const tableName = userType.toLowerCase();
 
-      
-        const tableName = userType.toLowerCase(); 
-        const primaryKey = userType === "User" ? "user_id" : "DoctorId"; 
 
-      
-        const query = `UPDATE ${escapeId(tableName)} SET ${escapeId(field)} = ? WHERE ${escapeId(primaryKey)} = ?`;
+          const fieldExists = await checkFieldExists(tableName, field);
+          if (!fieldExists) {
+              throw new Error("Invalid field provided");
+          }
 
-        return this.executeQuery(query, [value, user_id]);
-    }
-  async updateProfileBulk(userType,fields,user_id){  
-      const primaryKey = userType === "User" ? "user_id" : "DoctorId"; 
+          const primaryKey = userType === "User" ? "user_id" :
+                            userType === "Admin" ? "AdminId" :
+                            "DoctorId";
+            console.log("User type to update: " ,userType)
+          const query = `UPDATE ${tableName} SET ${field} = ? WHERE ${primaryKey} = ?`;
+          return this.executeQuery(query, [value, user_id]);
+}
+  async updateProfileBulk(userType,fields,user_id){    
+
+      userType = userType.charAt(0).toUpperCase() + userType.slice(1).toLowerCase();
+      const primaryKey = userType === "User" ? "user_id" :
+                            userType === "Admin" ? "AdminId" :
+                            "DoctorId";   
+                            
        const {query, values} =  await buildUpdateQuery(
          userType,
          fields,

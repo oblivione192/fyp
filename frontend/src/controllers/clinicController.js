@@ -17,6 +17,18 @@ class ClinicController{
           
           return clinics;
      }
+     async getClinicEnrollments(clinic_id){
+         const params = new URLSearchParams({ 
+           clinicId: clinic_id
+         }) 
+         const response  = await fetch(`/api/clinic/getClinicEnrollments?${params.toString()}`,
+        {
+          headers: this.headers 
+        }
+      ) 
+       const enrollments = await response.json(); 
+       return enrollments; 
+     }
 }
 
 export default ClinicController;

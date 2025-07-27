@@ -19,7 +19,12 @@ function groupMedicationsByAppointment(medications) {
 
 export default function MedicationPage(){ 
     const [groupedMedicals,setGroupedMedicals] = useState(null); 
-    const appointments = useAppointment();
+    const appointments = useAppointment(
+      {
+        role: 'user',
+        mode: 'BySelf'
+      }
+    );
     
      useEffect(()=>{ 
             API.getController('medication').getPatientMedicals()

@@ -2,7 +2,8 @@
 class AppointmentController{  
    constructor(headers){
      this.headers = headers;
-   } 
+   }  
+   
    async addAppointment(data){
      const response = await fetch('/api/appointment/addAppointment',
       { 
@@ -42,12 +43,12 @@ class AppointmentController{
    ) 
    return result; 
    }
-     async getAppointmentCount({isModifiedInBackend}){   
-          if(!localStorage.getItem("AppointmentCount") || 
-             isModifiedInBackend
-          ){ 
-              console.log("Request headers for appointment: " ,this.headers);
-              const totalAppointments = await fetch("/api/appointment/count",
+     async getAppointmentCount(options){   
+          if(!localStorage.getItem("AppointmentCount") ||
+             options.resync
+        ){ 
+              const query = new URLSearchParams(options)
+              const totalAppointments = await fetch(`/api/appointment/count?${query}`,
                   {
                       headers:this.headers
                   }
@@ -62,7 +63,6 @@ class AppointmentController{
               return totalAppointments;
           }
           else{ 
-  
              return localStorage.getItem("AppointmentCount"); 
           }
     }
@@ -95,7 +95,30 @@ class AppointmentController{
            return data
         }) 
         return appointments; 
-    } 
+    }   
+
+    async getAppointments(page,option){ 
+     const query = new URLSearchParams(option);  
+     console.log(this.headers); 
+     const appointments = await fetch(`/api/appointment/getAppointment?${query}&page=${page}`,
+     { 
+      headers: this.headers 
+     }
+     )
+     .then((resp)=>{
+       return resp.json(); 
+     })
+     .then((data)=>{
+       return data
+     }) 
+     .catch((err)=>{
+       console.error(err);  
+       return []; 
+     })
+     
+     return appointments; 
+
+    }
      async getUserAppointments(page){ 
     
       const appointments =  await fetch("/api/appointment/getAppointment?option=BySelf&page="+page,
@@ -137,8 +160,10 @@ class AppointmentController{
          ) 
        const services = await response.json(); 
        return services; 
-    } 
-     async getUpcomingSlots(clinicId){
+    }  
+    
+     async getUpcomingSlots(clinicId){ 
+
          const response = await fetch(`/api/appointment/getSlots?clinicId=${clinicId}&option=Upcoming`,
             {
                 method:'GET',
@@ -147,7 +172,64 @@ class AppointmentController{
          );  
          const slots = await response.json(); 
          return slots; 
+    } 
+   async confirmAppointment(data) {
+  try {
+    const updateResponse = await fetch(`/api/appointment/updateAppointment`, {
+      method: 'POST',
+      headers: this.headers,
+      body: JSON.stringify({
+        AppointmentId: data.AppointmentId,
+        field: "DoctorId",
+        newValue: data.DoctorId
+      })
+    });
+
+    const updateJson = await updateResponse.json();
+
+    if (!updateJson || updateJson.status !== 'success') {
+      throw new Error('Failed to update appointment.');
     }
-    
+
+    const confirmResponse = await fetch(`/api/appointment/confirmAppointment`, {
+      method: 'PUT',
+      headers: this.headers,
+      body: JSON.stringify({
+        AppointmentId: data.AppointmentId
+      })
+    });
+
+    const confirmJson = await confirmResponse.json();
+
+    return confirmJson.status;
+
+  } catch (err) {
+    console.error("Appointment confirmation failed:", err);
+    throw err;  // or: return { status: 'error', message: err.message };
+  }
+}
+
+    async addClinicSlot(data){
+       const response = await fetch(`/api/appointment/addClinicSlot`,
+        {
+          method:'POST',
+          headers:this.headers,
+          body:JSON.stringify({
+             slotDate: data.slotDate,
+             startTime: data.startTime,
+             endTime: data.endTime
+          })
+        }
+       ).then((response)=>{
+         return response.json(); 
+       }) 
+      if(response.status==="Success"){
+         return "OK"; 
+      } 
+      else{ 
+         return response.message;  
+      }
+    }
+      
 } 
 export default AppointmentController; 

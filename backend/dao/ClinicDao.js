@@ -4,6 +4,20 @@ export default class ClinicDao {
   constructor() {
     this.db = db; 
   }
+  async getClinicEnrollmentsByClinicId(clinicId){
+     const query = ` 
+      SELECT d.DoctorId, CONCAT(d.fname,' ',d.mname,' ',d.lname) as doctorName,  de.enrollment_date, de.enrollment_status FROM doctorenrollment de 
+      JOIN clinic c on de.ClinicID = c.ClinicId 
+      JOIN doctor d on de.doctorid = d.doctorid 
+      where c.clinicid = ?
+     `
+     return new Promise((resolve,reject)=>{
+       this.db.query(query,[clinicId],(err,results)=>{
+          if(err) return reject(err); 
+          resolve(results); 
+       })
+     })
+  }
   async getClinicByRegNo(regNo){
      const query = `
        SELECT * FROM clinic

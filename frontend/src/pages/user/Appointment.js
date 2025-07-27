@@ -225,8 +225,9 @@ function AppointmentList({ appointments }) {
 // Main Appointment page
 export default function Appointment() {
     const navigate = useNavigate(); 
-    const appointments = useAppointment()
-
+    const appointments = useAppointment({ 
+        option:'ByUser'
+    }) 
 
     return ( 
         

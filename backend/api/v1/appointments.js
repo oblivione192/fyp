@@ -28,11 +28,41 @@ async function checkAppointmentClashes(date, newStartTime, newEndTime, slotId, c
   );
 }
 
+appointmentRouter.post("/addClinicSlot",async function(req,res){
+   const clinicId = req.clinicId; 
+   const {slotDate,startTime,endTime} = req.body;  
+   try{
+    const result = await slotDao.addClinicSlot(clinicId,
+      {
+        slotDate,
+        startTime,
+        endTime
+      }
+    ) 
+    if(result){
+      return res.send({status:"Success",
+        addedSlot: {
+           slotDate : req.body.slotDate,
+           startTime: req.body.startTime,
+           endTime: req.body.endTime,
+           timestamp : new Date()
+        }
+      })
+    }  
+    return res.send({status:"Failure",message:"Nothing added"}); 
+    } 
+    catch(err){
+       return res.status(400).send({status:"Failure",message:err.message}); 
+
+    }
+   
+}) 
+
 // Confirm an appointment
 appointmentRouter.put("/confirmAppointment", async (req, res) => {
-  const { app_id } = req.body;
+  const { AppointmentId } = req.body;
   try {
-    const result = await appDao.confirmAppointment(app_id);
+    const result = await appDao.confirmAppointment(AppointmentId);
     if (result) {
       return res.send({ status: "Success" });
     } else {
@@ -115,7 +145,7 @@ appointmentRouter.post('/updateAppointment',async(req,res)=>{
       if(result){
         return res.send({status:"success"})
       }
-      return res.status(400).send({message:"Non existent apppintment or appointment already updated"}); 
+      return res.send({status:"failure",message:"Non existent apppintment or appointment already updated"}); 
     }
     catch{
       return res.status(500).send({message:"Internal server error"}); 
@@ -154,9 +184,10 @@ appointmentRouter.put("/openSlot", async (req, res) => {
 
 // Get available slots by date and clinic
 appointmentRouter.get("/getSlots", async (req, res) => {
-  const { clinicId, option} = req.query;
-  
-  if (!clinicId || !option) {
+  const { option} = req.query;
+  const clinicId = req.clinicId  || req.query.clinicId
+  console.log(req.clinicId); 
+  if (!option) {
     return res.status(400).send({ status: "Failure", message: "clinicId and option are required" });
   }
   try{
@@ -174,7 +205,8 @@ appointmentRouter.get("/getSlots", async (req, res) => {
   } catch (err) {
     return res.status(500).send({ status: "Failure", message: "Internal server error" });
   }
-});  
+});   
+
 appointmentRouter.get("/confirmedAppointments",async(req,res)=>{
    const {user_id,page} = req.query; 
    try{
@@ -218,76 +250,166 @@ appointmentRouter.get("/appointmentUpcomingAppoinments",async(req,res)=>{
     return res.status(500).send({message:"Internal server error"}); 
   }
 })
-appointmentRouter.get("/count",async(req,res)=>{
-   const result = await appDao.getUserAppointmentCount(req.user_id); 
-  
-   return res
-   .header('Content-Type','text/plain')
-   .send(result); 
-})
-// Get appointments by various filters
-appointmentRouter.get("/getAppointment", async (req, res) => {
-  const { option, date, clinicId, SlotId, AppointmentId, page } = req.query;
-  console.log(req.query);
-  
+appointmentRouter.get("/count", async (req, res) => {
+  const { option, UserId, ClinicId } = req.query;
+
+  const user_id = UserId || req.user_id;
+  const clinic_id = ClinicId || req.clinicId;
+
+  let result;
+
   try {
-    if (!option) {
-      return res.status(400).send({ status: "Failure", message: "No option specified" });
+    if (option === 'ByUser') {
+      if (!user_id) {
+        return res.status(400).send("User ID is missing");
+      }
+      result = await appDao.getUserAppointmentCount(user_id);
+    } else if (option === 'ByClinic') {
+      if (!clinic_id) {
+        return res.status(400).send("Clinic ID is missing");
+      }
+      result = await appDao.getClinicAppointmentCount(clinic_id);
+    } else {
+      return res.status(400).send("Invalid option specified");
     }
 
+    return res
+      .header('Content-Type', 'text/plain')
+      .send(result.toString());
+  } catch (err) {
+    console.error("Error fetching appointment count:", err);
+    return res.status(500).send("Internal server error");
+  }
+});
+// Get appointments by various filters
+appointmentRouter.get("/getAppointment", async (req, res) => {
+  const {
+    option,
+    date,
+    clinicId: queryClinicId,
+    SlotId,
+    AppointmentId,
+    page,
+    user_id: queryUserId,
+  } = req.query;
+
+  console.log(req.query);
+
+  try {
+    if (!option) {
+      return res.status(400).send({
+        status: "Failure",
+        message: "No option specified",
+      });
+    }
+
+    let user_id = queryUserId || req.user_id;
+    let clinicId = queryClinicId || req.clinicId;
     let appointments = null;
-    let user_id;
 
+    
+   
+   
     switch (option) {
-      case 'ByUser':
-        user_id = req.query.user_id;
-        break;
-
-      case 'BySelf':
-        user_id = req.user_id;  // from JWT
-        break;
-
-      case 'ByClinicSlots':
-        if (!SlotId || !clinicId) {
-          return res.status(400).send({ status: "Failure", message: "SlotId and clinicId are required" });
+      case "ByUser":
+        if (!user_id) {
+          return res.status(400).send({
+            status: "Failure",
+            message: "User ID is required for ByUser option",
+          });
         }
+
+        const userCount = await appDao.getUserAppointmentCount(user_id);
+        const totalPages = Math.ceil(userCount / 5);
+
+        if (page > 0 && page <= totalPages) {
+          appointments = await appDao.getUserAppointments(user_id, page, 5);
+          return res.send(appointments);
+        } else {
+          return res.status(400).send({
+            status: "Failure",
+            message: "Page exceeded",
+          });
+        }
+
+      case "ByClinic": 
+       if(!clinicId){
+              return res.status(400).send({
+                status:"Failure", 
+                message: "Clinic Id is required for ByClinic option"
+              }) 
+        } 
+        const appCount = await appDao.getClinicAppointmentCount(clinicId);  
+        let Pages = Math.ceil(appCount / 5); 
+        if(page > 0 && page <= Pages){
+          appointments = await appDao.getClinicAppointments(user_id,page,5); 
+          return res.send(appointments); 
+        } 
+        else{
+          return res.status(400).send({
+            status:"Failure",
+            message:"Page exceeded"
+          })
+        }
+
+
+
+      case "ByDate":
+        if (!date) {
+          return res.status(400).send({
+            status: "Failure",
+            message: "Date is required",
+          });
+        }
+
+        appointments = await appDao.listClinicAppointmentsByDate(date,clinicId)
+        return res.send(appointments);
+
+      case "ByClinicSlots":
+        if (!SlotId || !clinicId) {
+          return res.status(400).send({
+            status: "Failure",
+            message: "SlotId and clinicId are required",
+          });
+        }
+
         appointments = await appDao.listAppointmentsbyClinicSlot(SlotId, clinicId);
         return res.send(appointments);
 
-      case 'ById':
+      case "ById":
         if (!AppointmentId) {
-          return res.status(400).send({ status: "Failure", message: "AppointmentId is required" });
+          return res.status(400).send({
+            status: "Failure",
+            message: "AppointmentId is required",
+          });
         }
+
         appointments = await appDao.getAppointmentById(AppointmentId);
         return res.send(appointments);
 
-      case 'ByDate':
-        if (!date) {
-          return res.status(400).send({ status: "Failure", message: "Date is required" });
+      case "ByClinicDate":
+        if (!clinicId || !date) {
+          return res.status(400).send({
+            status: "Failure",
+            message: "clinicId and date are required",
+          });
         }
-        appointments = await appDao.listAppointmentsbyDate(date);
+
+        appointments = await appDao.listClinicAppointmentsByDate(date, clinicId);
         return res.send(appointments);
 
       default:
-        return res.status(400).send({ status: "Failure", message: "Invalid option" });
+        return res.status(400).send({
+          status: "Failure",
+          message: "Invalid option",
+        });
     }
-
-    if (user_id) {
-      const userCount = await appDao.getUserAppointmentCount(user_id);
-      const totalPages = Math.ceil(userCount / 5);
-
-      if (page > 0 && page <= totalPages) {
-        appointments = await appDao.getUserAppointments(user_id, page, 5);
-        return res.send(appointments);
-      } else {
-        return res.status(400).send({ status: "failure", message: "Page exceeded" });
-      }
-    }
-
-    return res.status(400).send({ status: "Failure", message: "User ID missing" });
   } catch (err) {
     console.error("Error fetching appointments:", err);
-    return res.status(500).send({ status: "Failure", message: "Internal server error" });
+    return res.status(500).send({
+      status: "Failure",
+      message: "Internal server error",
+    });
   }
 });
 
