@@ -8,9 +8,11 @@ import jwt from 'jsonwebtoken';
 import path from 'path';  
 import medRouter from "./api/v1/medications.js"; 
 import adminRouter from "./api/v1/admin.js"; 
-import cookieParser from "cookie-parser";
+import cookieParser from "cookie-parser"; 
+import {match,pathToRegexp} from 'path-to-regexp'
 const PORT = 3000;   
-const validRoutes = new Set(); 
+const validRoutes = new Set();  
+const routeRegex = []; 
 app.use(cookieParser(process.env.COOKIE_SECRET))
 app.use((req, res, next) => {
   console.log(req.path);
@@ -52,16 +54,19 @@ app.use((req, res, next) => {
 }); 
 
 app.use((req, res, next) => {
-    const requestedPath = req.path;
-    console.log(req.path);
-    // Check if the requested path exists in validRoutes (Set lookup is O(1))
-    if (!validRoutes.has(requestedPath)) {
-      // If the path is invalid, serve index.html (usually for React/SPA apps)
-      return res.sendFile(path.join(path.resolve(), 'build', 'index.html')); 
+  const requestedPath = req.path;
+  console.log("Requested:", requestedPath);
+
+    // 1. Optimistic Set lookup (O(1))
+    if (validRoutes.has(requestedPath)) return next();
+
+    // 2. Fallback to regex only if Set fails
+    for (const regex of routeRegex) {
+      if (regex.test(requestedPath)) return next();
     }
-    
-    // If the path is valid, continue with the request
-    next();
+
+    // 3. Nothing matched
+    return res.sendFile(path.join(path.resolve(), 'build', 'index.html'));
 });
   
 
@@ -71,52 +76,30 @@ app.use('/api/clinic',clinicRouter);
 app.use('/api/health',hrRouter); 
 app.use('/api/profile',profileRouter); 
 app.use('/api/medication',medRouter);  
-app.use('/auth/admin',adminRouter);  
+app.use('/auth/admin',adminRouter);   
 
-userRouter.stack.forEach((layer)=>{ 
-  const prefix = "/auth/user"; 
-  if(layer.route){
-    validRoutes.add(prefix + layer.route.path); 
-  }
-})
-appointmentRouter.stack.forEach((layer)=>{
-  const prefix = "/api/appointment"; 
-  if(layer.route){
-   validRoutes.add(prefix +  layer.route.path); 
-  }
-})
-clinicRouter.stack.forEach((layer)=>{
-  const prefix = "/api/clinic";
-  if(layer.route){
-    validRoutes.add(prefix  + layer.route.path); 
-  }
-}) 
-profileRouter.stack.forEach((layer)=>{
-   const prefix = "/api/profile"; 
-   if(layer.route){
+const routerPrefixes = [
+  { router: userRouter, prefix: "/auth/user" },
+  { router: appointmentRouter, prefix: "/api/appointment" },
+  { router: clinicRouter, prefix: "/api/clinic" },
+  { router: profileRouter, prefix: "/api/profile" },
+  { router: hrRouter, prefix: "/api/health" },
+  { router: medRouter, prefix: "/api/medication" },
+  { router: adminRouter, prefix: "/auth/admin" },
+]; 
+
+routerPrefixes.forEach(({ router, prefix }) => {
+  router.stack.forEach((layer) => {
+    if (layer.route) {
       validRoutes.add(prefix + layer.route.path); 
-   }
-})
-hrRouter.stack.forEach((layer)=>{
-  const prefix = "/api/health"; 
-  if(layer.route){
-    validRoutes.add(prefix + layer.route.path); 
-  }
-})
-medRouter.stack.forEach((layer)=>{
-   const prefix = "/api/medication"; 
-   if(layer.route){
-    validRoutes.add(prefix + layer.route.path); 
-   }
-}) 
-adminRouter.stack.forEach((layer)=>{
-   const prefix = "/auth/admin"; 
-   if(layer.route){
-     validRoutes.add(prefix +  layer.route.path); 
-   }
-})
-console.log([...validRoutes]);  
+      routeRegex.push(pathToRegexp(prefix + layer.route.path).regexp);
+    } 
+  }); 
 
+}); 
+
+console.log([...validRoutes]);  
+console.log([...routeRegex])
 app.listen(PORT, ()=>{
     console.log(`Express server running at http://localhost:${PORT}/`)
 })  

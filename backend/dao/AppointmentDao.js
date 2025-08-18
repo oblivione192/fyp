@@ -176,7 +176,7 @@ export default class AppointmentDao {
   }
   async listAppointmentsByClinicSlot(SlotId, ClinicId) {
     const query = `
-      SELECT a.*, s.slotDate, s.startTime AS slotStart, s.endTime AS slotEnd, 
+      SELECT a.*, s.slotDate as date, s.startTime AS slotStart, s.endTime AS slotEnd, 
              c.name AS clinicName, d.DoctorId, CONCAT(u.fname,u.mname,u.lname) AS patientName
       FROM Appointment a
       JOIN Slot s ON a.SlotId = s.SlotId
@@ -190,7 +190,7 @@ export default class AppointmentDao {
   }
   async getLatestAppointmentFromUser(user_id){
     const query = ` 
-      SELECT a.*, s.slotDate, s.startTime, s.endTime, d.DoctorId, c.name AS clinicName
+      SELECT a.*, s.slotDate AS date, s.startTime, s.endTime, d.DoctorId,c.clinicId, c.address, c.name AS clinicName
       FROM Appointment a
       JOIN Slot s ON a.SlotId = s.SlotId
       LEFT JOIN Doctor d ON a.DoctorId = d.DoctorId

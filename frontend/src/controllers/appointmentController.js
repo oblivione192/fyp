@@ -208,7 +208,27 @@ class AppointmentController{
     throw err;  // or: return { status: 'error', message: err.message };
   }
 }
+    async setAppointmentAttended(AppointmentId,attended){
+       const response= await fetch(`/api/appointment/updateAppointment`,{
+         method: 'POST', 
+         headers: this.headers,
+         body: JSON.stringify({
+            AppointmentId: AppointmentId,
+            field: "attended",
+            newValue: attended
+         })
+       })
+       .then((resp)=>{
+          return resp.json(); 
+       }) 
 
+       if(response.status === "success"){
+         return "OK"; 
+       }
+       else{
+        return response.message; 
+       }
+    }
     async addClinicSlot(data){
        const response = await fetch(`/api/appointment/addClinicSlot`,
         {
@@ -224,12 +244,25 @@ class AppointmentController{
          return response.json(); 
        }) 
       if(response.status==="Success"){
-         return "OK"; 
+         return response; 
       } 
       else{ 
          return response.message;  
       }
     }
+    async deleteClinicSlot(slotId){
+       const response = await fetch(`/api/appointment/deleteSlot/${slotId}`,
+        {
+          method:'DELETE',
+          headers: this.headers
+        }
+       )
+       .then((resp)=>{
+         return resp.json() 
+       }) 
       
+        return response; 
+    }
 } 
+
 export default AppointmentController; 

@@ -5,11 +5,13 @@
     "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.0",
+        "@googlemaps/google-maps-services-js": "^3.4.2",
         "@reduxjs/toolkit": "^2.8.1",
         "@testing-library/dom": "^10.4.0",
         "@testing-library/jest-dom": "^6.6.3",
         "@testing-library/react": "^16.2.0",
         "@testing-library/user-event": "^13.5.0",
+        "mitt": "^3.0.1",
         "react": "^19.0.0",
         "react-bootstrap": "^2.10.10",
         "react-calendar": "^6.0.0",

@@ -6,7 +6,7 @@ export default class ClinicDao {
   }
   async getClinicEnrollmentsByClinicId(clinicId){
      const query = ` 
-      SELECT d.DoctorId, CONCAT(d.fname,' ',d.mname,' ',d.lname) as doctorName,  de.enrollment_date, de.enrollment_status FROM doctorenrollment de 
+      SELECT d.DoctorId, d.fname, d.mname, d.lname,  de.enrollment_date, de.enrollment_status FROM doctorenrollment de 
       JOIN clinic c on de.ClinicID = c.ClinicId 
       JOIN doctor d on de.doctorid = d.doctorid 
       where c.clinicid = ?

@@ -101,7 +101,7 @@ function AppointmentActionBar({clinicId, AppointmentId}){
             <Button variant="danger"  onClick={handleShowAlert}>Cancel</Button>  
         </div>  
 
-        <PopupForm title="Appoinment Postpone" show={showForm} setShowModal={setShowForm} submitHandler={handlePostpone}>
+        <PopupForm title="Appoinment Postpone" showModal={showForm} onClose={()=>{setShowForm(false)}} submitHandler={handlePostpone}>
             <Form.Group>
                 <Form.Label>Select Postpone Slots</Form.Label> 
                 <InputGroup>   

@@ -4,13 +4,14 @@ import {Row,Col, Container,Button, InputGroup,FormControl, FormSelect, FormLabel
 import Calendar from "react-calendar";   
 import { formatDate } from "../../util/Time"; 
 import { useState , useEffect, useMemo} from "react";
-import 'react-calendar/dist/Calendar.css';  
+import 'react-calendar/src/Calendar.css'; 
 import {ListGroup, ListGroupItem} from 'react-bootstrap'
 import SearchBar from "../../components/SearchBar"; 
 import PopupForm from "../../components/PopupForm";  
 import API from "../../controllers";  
 import { useRef } from "react"; 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux"; 
+import { UpdateAppointment } from "../../reducers/appointmentReducer";
 import {initEnrollment} from "../../reducers/enrollmentReducer";
 function ConfirmForm({ appointmentId, show, onClose }) {  
   const dispatch= useDispatch();   
@@ -19,9 +20,21 @@ function ConfirmForm({ appointmentId, show, onClose }) {
   const enrollments=  useSelector(state=>state.Enrollment.enrollments)
   
   const doctorId = useRef(''); 
+  const doctorFName= useRef(''); 
   const handleConfirm = function(){
     API.getController('appointment')
     .confirmAppointment({AppointmentId: appointmentId,DoctorId: doctorId.current})
+    .then(()=>{
+        dispatch(UpdateAppointment({
+          updatedAppointment:{
+              AppointmentId: appointmentId,  
+              doctorName: "Dr. " +doctorFName.current,
+              DoctorId: doctorId.current,  
+              confirmed: true
+          } 
+        }
+        ))
+    })
     .catch((err)=>{
       console.log(err.mesage)
     })
@@ -49,8 +62,9 @@ function ConfirmForm({ appointmentId, show, onClose }) {
               {
                 enrollments.length > 0  ? 
                 enrollments.map((enrollment,index)=>{
-                  return <ListGroupItem key={index} onClick={()=>{doctorId.current = enrollment.DoctorId}} className="d-flex gap-3 rounded-pill" style={{justifyContent:"space-between"}}>
-                    <div onClick={()=>{doctorId.current=enrollment.DoctorId}}>{enrollment.doctorName}</div> 
+                  const doctorName = enrollment.fname + " "+enrollment.mname+" "+enrollment.lname; 
+                  return <ListGroupItem key={index} onClick={()=>{doctorId.current = enrollment.DoctorId;doctorFName.current=enrollment.fname}} className="d-flex gap-3 rounded-pill" style={{justifyContent:"space-between"}}>
+                    <div>{"Dr." + doctorName}</div> 
                   </ListGroupItem>
                 }) : 
                 enrollmentHasInit ?  <p>Loading</p> : 
@@ -89,17 +103,47 @@ function NoAppointment(){
 
 function Actions({ appointmentId, children }) {
   const [showConfirmForm, setShowConfirmForm] = useState(false);
-  
+  const [appointmentAttended, setAppointmentAttended] = useState(null);  
+  const dispatch = useDispatch(); 
+  const handleAttended = function(){
+     API.getController("appointment")
+        .setAppointmentAttended(appointmentId,appointmentAttended) 
+        .then((result)=>{
+           if(result === "OK"){
+              dispatch(
+                 UpdateAppointment({
+                  updatedAppointment:{ 
+                    AppointmentId: appointmentId,
+                    attended: true
+                  } 
+                }
+                 )
+              )
+              //resets to null so that it doesnt execute from previous value.
+              setAppointmentAttended(null); 
+           }
+        })
+  }
+  if(appointmentAttended!==null){ 
+     handleAttended();  
+  }
   return (
     <>
       <FormSelect onChange={(e) => {
         if (e.target.value === 'confirm') {
           setShowConfirmForm(true);
+        } 
+        if(e.target.value=== 'attended'){
+           setAppointmentAttended(true); 
+        }  
+        if(e.target.value=== 'unattend'){
+          setAppointmentAttended(false); 
         }
+
       }}>
         {children}
       </FormSelect>
-
+       
       <ConfirmForm appointmentId={appointmentId} show={showConfirmForm} onClose={() => setShowConfirmForm(false)} />
     </>
   ); 
@@ -123,7 +167,9 @@ export default function PatientAppointments(){
 }, [appointments]); 
 
 
-  const [filteredAppointments,setFilteredAppointments] = useState(defaultFilteredAppointments) 
+
+  const [filteredAppointments,setFilteredAppointments] = useState(defaultFilteredAppointments)  
+  
   useEffect(() => { 
   if(Object.entries(filter).length &&
      Object.entries(filter).some(([key,value])=>{
@@ -202,31 +248,40 @@ else{
                            <th>Name</th> 
                            <th>Date</th>
                            <th>Slot</th>  
-                           <th>Doctor</th> 
-                           <th>Action</th>
+                           <th>Doctor</th>  
+                           <th>Status</th> 
+                           <th>Attendance</th>
+                           <th>Action</th> 
+                          
                         </tr>
                </thead>  
                <tbody>
                 {
                      filteredAppointments 
-                     .map((appointment,index)=>{   
+                     .map((appointment,index)=>{     
                       
                      return( 
                        <tr key={index}>
                          <td>{appointment.patient_name}</td> 
                          <td>{formatDate(appointment.date.split('T')[0])}</td> 
                          <td>{appointment.startTime.substring(0,5) + " - "+appointment.endTime.substring(0,5)}</td>
-                         <td>{appointment.doctorName}</td> 
+                         <td>{appointment.doctorName}</td>   
+                         <td>{
+                              appointment.confirmed ? "Confirmed" :   
+                              "Pending"
+                             }
+                         </td> 
+                         <td>{appointment.attended ? "Attended" : "Absent"} </td>
                          <td>
                            <Actions appointmentId={appointment.AppointmentId} key={index}>
                                 <option value="postpone">Postpone</option>  
                              {
-                            appointment.confirmed !== true && new Date(appointment.date) > new Date() 
+                            !appointment.confirmed  && (new Date(appointment.date) > new Date())
                               ? <option value="confirm">Confirm</option>
                               : null
                           }
                           {
-                            appointment.confirmed === true 
+                            appointment.confirmed && !appointment.attended
                               ? <option value="attended">Attended</option>
                               : null
                           }

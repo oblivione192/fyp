@@ -39,12 +39,10 @@ appointmentRouter.post("/addClinicSlot",async function(req,res){
         endTime
       }
     ) 
-    if(result){
+    if(result.status == 1){
       return res.send({status:"Success",
         addedSlot: {
-           slotDate : req.body.slotDate,
-           startTime: req.body.startTime,
-           endTime: req.body.endTime,
+           slotId: result.slotId, 
            timestamp : new Date()
         }
       })
@@ -53,7 +51,6 @@ appointmentRouter.post("/addClinicSlot",async function(req,res){
     } 
     catch(err){
        return res.status(400).send({status:"Failure",message:err.message}); 
-
     }
    
 }) 
@@ -91,14 +88,16 @@ appointmentRouter.post("/addAppointment", async (req, res) => {
     
 
      
-    console.log(PatientId); 
+    console.log(PatientId);  
+  
     const result = await appDao.createAppointment(SlotId, DoctorId, PatientId, {
       date,
       visit_purpose,
       startTime,
-      endTime
+      endTime 
     }); 
-
+    //now you have to implement the system to account for appointment limits. 
+    //Use the estimated duration in minutes for each clinic service. Serves as the best estimate. 
     const addedAppointment = await appDao.getLatestAppointmentFromUser(req.user_id);  
     addedAppointment.createdAt = Date.now();   
 
@@ -185,27 +184,70 @@ appointmentRouter.put("/openSlot", async (req, res) => {
 // Get available slots by date and clinic
 appointmentRouter.get("/getSlots", async (req, res) => {
   const { option} = req.query;
-  const clinicId = req.clinicId  || req.query.clinicId
+  const clinicId = req.clinicId  || req.query.clinicId 
+  var slots = []
   console.log(req.clinicId); 
   if (!option) {
     return res.status(400).send({ status: "Failure", message: "clinicId and option are required" });
   }
   try{
     if(option == "Upcoming"){  
-        const slots = await slotDao.listClinicUpcomingSlots(clinicId); 
-        return res.send(slots); 
+       slots = await slotDao.listClinicUpcomingSlots(clinicId); 
+    }
+    if(option == "ByDate"){ 
+       slots = await slotDao.listClinicSlotsByDate(req.query.date,clinicId); 
     }  
+    else if(!option){
+       slots = await slotDao.listClinicSlots(clinicId); 
+    }
   } 
   catch(err){
-    return res.status(500).send({status: "Failure", message: "Internal server error"}); 
+      return res.status(500).send({status: "Failure", message: "Internal server error"}); 
   }
-  try {
-    const slots = await slotDao.listClinicSlotsByDate(date, clinicId);
-    return res.send(slots);
-  } catch (err) {
-    return res.status(500).send({ status: "Failure", message: "Internal server error" });
+
+   return res.send(slots); 
+});    
+
+appointmentRouter.delete("/deleteSlot/:slotId", async (req, res) => {
+  try{
+    const {slotId} = req.params; 
+    const status = await slotDao.deleteSlot(slotId); 
+    if(status){
+      return res.send({status:"success"}) 
+    }
+    return res.send({status:"failure",message:"Slot may have already been deleted"}); 
   }
-});   
+  catch(err){
+     return res.send({status:"failure",message:err.message}); 
+  }
+}) 
+
+appointmentRouter.post("/changeSlotTime",async(req,res)=>{
+   const { slotId,slotDate, newStartTime,newEndTime} = req.body;  
+   const clinicId = req.clinicId || req.body.clinicId
+   try{ 
+      const isSlotClash = await slotDao.checkIfSlotClashes(clinicId,slotDate,newStartTime,newEndTime); 
+      if(isSlotClash){ 
+         return new Error("Slots have clashed. Please check your list of slots.")
+      }
+      const status= await slotDao.updateSlot(slotId,
+        {
+          startTime: newStartTime,
+          endTime: newEndTime
+        } 
+      ) 
+      if(status){
+        return res.send({status:"success"}); 
+      }
+      else{
+        return res.send({status:"Failure",message:"Same value has been updated."}); 
+      }
+      
+   } 
+   catch(err){
+      return res.status(500).send({status:"Failure",message:err.message}); 
+   }
+}) 
 
 appointmentRouter.get("/confirmedAppointments",async(req,res)=>{
    const {user_id,page} = req.query; 
@@ -217,6 +259,7 @@ appointmentRouter.get("/confirmedAppointments",async(req,res)=>{
     return res.status(500).send({message:"Internal server error"}); 
    }
 })
+
 appointmentRouter.get("/pendingAppointments",async(req,res)=>{
    const {user_id,page} = req.query; 
    try{

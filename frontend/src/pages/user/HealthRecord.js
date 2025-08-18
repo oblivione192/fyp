@@ -49,8 +49,7 @@ function HealthDisplay(){
                   color:'grey'
                 }
               }
-            >{isInit !==false && haveExistingRecord  ? "As of " + healthRecord.recorded_at.split("T")[0] + " "+
-                healthRecord.recorded_at.split("T")[1].split(".")[0].slice(0,5)  : ''} 
+            >{isInit !==false && haveExistingRecord  ? "As of " + healthRecord.recorded_at.split("T")[0] : ''} 
             </Card.Subtitle> 
             <Card.Body>
                {

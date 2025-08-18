@@ -11,8 +11,8 @@ export default class SlotDao {
       FROM SLOT
       where slotDate = ? 
       AND clinicId = ?
-      AND ? < endTime 
-      AND ? > startTime
+      AND ? <= endTime 
+      AND ? >= startTime
     ` 
     const result =  await this.executeQuery(clashQueryChecker,
       [slotDate,clinicId,endTime,startTime]
@@ -35,7 +35,7 @@ export default class SlotDao {
     return new Promise((resolve, reject) => {
       this.db.execute(query, [clinicId, slotDate, startTime, endTime], (err, result) => {
         if (err) return reject(err);
-        resolve(result.affectedRows > 0);
+        resolve({status: result.affectedRows > 0,slotId: result.insertId});
       });
     });
   }
@@ -53,6 +53,16 @@ export default class SlotDao {
         resolve(result.affectedRows > 0);
       });
     });
+  } 
+  async listClinicSlots(clinicId){ 
+     const query =  `
+      SELECT SlotId, slotDate, startTime, endTime
+        FROM slot
+        WHERE 
+      ClinicID = ? 
+     `
+     return this.executeQuery(query,[clinicId]); 
+
   }
   async listClinicUpcomingSlots(clinicId) {
     const query = `
@@ -74,8 +84,7 @@ export default class SlotDao {
    async listClinicSlotsByDate(date, clinicId) {
     const query = `
       SELECT slotDate, startTime, endTime FROM SLOT 
-      WHERE slotDate = ? AND ClinicId = ? AND 
-      
+      WHERE slotDate = ? AND ClinicId = ? 
     `;
 
     return new Promise((resolve, reject) => {

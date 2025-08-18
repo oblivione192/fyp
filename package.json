@@ -4,6 +4,7 @@
     "bootstrap": "^5.3.6",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
+    "jest": "^30.0.5",
     "serve": "^14.2.4"
   },
   "scripts": {

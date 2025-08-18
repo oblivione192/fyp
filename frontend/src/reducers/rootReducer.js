@@ -3,13 +3,16 @@ import authReducer from './authReducer.js';
 import appointmentsReducer from './appointmentReducer.js';
 import healthReducer from './healthRecordReducer.js';
 import profileReducer from './profileReducer.js';
-import enrollmentReducer from './enrollmentReducer.js'
+import enrollmentReducer from './enrollmentReducer.js'; 
+import slotsReducer from './slotsReducer.js'; 
+
 const appReducer = combineReducers({
   Auth: authReducer,
   Appointment: appointmentsReducer,
   Health: healthReducer,
   Profile: profileReducer,
-  Enrollment: enrollmentReducer
+  Enrollment: enrollmentReducer,
+  Slot: slotsReducer
 });
 
 const rootReducer = (state, action) => {
