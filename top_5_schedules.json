@@ -1,0 +1,62 @@
+[
+    {
+        "distance_patient_clinic": 9.869494110626384,
+        "distance_staff_patient": 4.664735647172682,
+        "time_margin": -0.24301269504954348,
+        "workload": 1,
+        "language": "English",
+        "wheelchair": true,
+        "cost": 0.19344272074630878,
+        "fitness_score": 3.806557279253691,
+        "accept_prob": 1.0,
+        "predicted_label": 1
+    },
+    {
+        "distance_patient_clinic": 5.731932195921502,
+        "distance_staff_patient": 4.372579202821838,
+        "time_margin": -0.6884606431959526,
+        "workload": 2,
+        "language": "English",
+        "wheelchair": true,
+        "cost": 0.20399380209396517,
+        "fitness_score": 3.796006197906035,
+        "accept_prob": 1.0,
+        "predicted_label": 1
+    },
+    {
+        "distance_patient_clinic": 6.254618710874426,
+        "distance_staff_patient": 8.136120504966723,
+        "time_margin": -0.7424823842272303,
+        "workload": 1,
+        "language": "English",
+        "wheelchair": true,
+        "cost": 0.20865680496598582,
+        "fitness_score": 3.791343195034014,
+        "accept_prob": 1.0,
+        "predicted_label": 1
+    },
+    {
+        "distance_patient_clinic": 3.5469938269337957,
+        "distance_staff_patient": 7.781535109965772,
+        "time_margin": -2.0468117315313066,
+        "workload": 1,
+        "language": "English",
+        "wheelchair": true,
+        "cost": 0.2215123470867059,
+        "fitness_score": 3.7784876529132942,
+        "accept_prob": 1.0,
+        "predicted_label": 1
+    },
+    {
+        "distance_patient_clinic": 2.077603371332237,
+        "distance_staff_patient": 7.521682032094542,
+        "time_margin": -2.8466545381108688,
+        "workload": 1,
+        "language": "English",
+        "wheelchair": true,
+        "cost": 0.23088133863796342,
+        "fitness_score": 3.7691186613620364,
+        "accept_prob": 1.0,
+        "predicted_label": 1
+    }
+]

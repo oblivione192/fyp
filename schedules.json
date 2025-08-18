@@ -1,0 +1,317 @@
+[
+  {
+    "schedule_id": 1,
+    "date": "2025-08-15",
+    "driver_coords": [40.7306, -73.9352],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 32.5,
+    "time_margin": 4,
+    "workload": 3
+  },
+  {
+    "schedule_id": 2,
+    "date": "2025-08-15",
+    "driver_coords": [40.6500, -73.9500],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 28.0,
+    "time_margin": -1,
+    "workload": 4
+  },
+  {
+    "schedule_id": 3,
+    "date": "2025-08-15",
+    "driver_coords": [40.7128, -74.0100],
+    "clinic_coords": [40.7614, -73.9776],
+    "price": 40.0,
+    "time_margin": 2,
+    "workload": 5
+  },
+  {
+    "schedule_id": 4,
+    "date": "2025-08-15",
+    "driver_coords": [40.7891, -73.1350],
+    "clinic_coords": [40.7505, -73.9934],
+    "price": 22.0,
+    "time_margin": 6,
+    "workload": 2
+  },
+  {
+    "schedule_id": 5,
+    "date": "2025-08-15",
+    "driver_coords": [40.7120, -73.9800],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 25.0,
+    "time_margin": -4,
+    "workload": 1
+  },
+  {
+    "schedule_id": 6,
+    "date": "2025-08-16",
+    "driver_coords": [40.6892, -74.0445],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 29.5,
+    "time_margin": 5,
+    "workload": 2
+  },
+  {
+    "schedule_id": 7,
+    "date": "2025-08-16",
+    "driver_coords": [40.7484, -73.9857],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 35.0,
+    "time_margin": -3,
+    "workload": 6
+  },
+  {
+    "schedule_id": 8,
+    "date": "2025-08-16",
+    "driver_coords": [40.7306, -73.9352],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 30.0,
+    "time_margin": 7,
+    "workload": 4
+  },
+  {
+    "schedule_id": 9,
+    "date": "2025-08-16",
+    "driver_coords": [40.6782, -73.9442],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 45.0,
+    "time_margin": -5,
+    "workload": 7
+  },
+  {
+    "schedule_id": 10,
+    "date": "2025-08-16",
+    "driver_coords": [40.7614, -73.9776],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 20.0,
+    "time_margin": 0,
+    "workload": 2
+  },
+  {
+    "schedule_id": 11,
+    "date": "2025-08-17",
+    "driver_coords": [40.7580, -73.9855],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 18.0,
+    "time_margin": 1,
+    "workload": 1
+  },
+  {
+    "schedule_id": 12,
+    "date": "2025-08-17",
+    "driver_coords": [40.7306, -73.9352],
+    "clinic_coords": [40.7614, -73.9776],
+    "price": 33.0,
+    "time_margin": 5,
+    "workload": 3
+  },
+  {
+    "schedule_id": 13,
+    "date": "2025-08-17",
+    "driver_coords": [40.6500, -73.9500],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 27.0,
+    "time_margin": -2,
+    "workload": 4
+  },
+  {
+    "schedule_id": 14,
+    "date": "2025-08-17",
+    "driver_coords": [40.7128, -74.0100],
+    "clinic_coords": [40.7505, -73.9934],
+    "price": 44.0,
+    "time_margin": 4,
+    "workload": 6
+  },
+  {
+    "schedule_id": 15,
+    "date": "2025-08-17",
+    "driver_coords": [40.7891, -73.1350],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 25.0,
+    "time_margin": 6,
+    "workload": 2
+  },
+  {
+    "schedule_id": 16,
+    "date": "2025-08-18",
+    "driver_coords": [40.7120, -73.9800],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 26.0,
+    "time_margin": -1,
+    "workload": 1
+  },
+  {
+    "schedule_id": 17,
+    "date": "2025-08-18",
+    "driver_coords": [40.6892, -74.0445],
+    "clinic_coords": [40.7505, -73.9934],
+    "price": 31.0,
+    "time_margin": 3,
+    "workload": 3
+  },
+  {
+    "schedule_id": 18,
+    "date": "2025-08-18",
+    "driver_coords": [40.7484, -73.9857],
+    "clinic_coords": [40.7614, -73.9776],
+    "price": 35.5,
+    "time_margin": -3,
+    "workload": 5
+  },
+  {
+    "schedule_id": 19,
+    "date": "2025-08-18",
+    "driver_coords": [40.7306, -73.9352],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 29.0,
+    "time_margin": 8,
+    "workload": 2
+  },
+  {
+    "schedule_id": 20,
+    "date": "2025-08-18",
+    "driver_coords": [40.6782, -73.9442],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 39.0,
+    "time_margin": -4,
+    "workload": 7
+  },
+  {
+    "schedule_id": 21,
+    "date": "2025-08-19",
+    "driver_coords": [40.7614, -73.9776],
+    "clinic_coords": [40.7505, -73.9934],
+    "price": 21.0,
+    "time_margin": 1,
+    "workload": 1
+  },
+  {
+    "schedule_id": 22,
+    "date": "2025-08-19",
+    "driver_coords": [40.7580, -73.9855],
+    "clinic_coords": [40.7614, -73.9776],
+    "price": 19.0,
+    "time_margin": 0,
+    "workload": 2
+  },
+  {
+    "schedule_id": 23,
+    "date": "2025-08-19",
+    "driver_coords": [40.7306, -73.9352],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 34.0,
+    "time_margin": 2,
+    "workload": 4
+  },
+  {
+    "schedule_id": 24,
+    "date": "2025-08-19",
+    "driver_coords": [40.6500, -73.9500],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 27.0,
+    "time_margin": -1,
+    "workload": 3
+  },
+  {
+    "schedule_id": 25,
+    "date": "2025-08-19",
+    "driver_coords": [40.7128, -74.0100],
+    "clinic_coords": [40.7505, -73.9934],
+    "price": 42.0,
+    "time_margin": 4,
+    "workload": 6
+  },
+  {
+    "schedule_id": 26,
+    "date": "2025-08-20",
+    "driver_coords": [40.7891, -73.1350],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 23.0,
+    "time_margin": 6,
+    "workload": 2
+  },
+  {
+    "schedule_id": 27,
+    "date": "2025-08-20",
+    "driver_coords": [40.7120, -73.9800],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 24.0,
+    "time_margin": -2,
+    "workload": 1
+  },
+  {
+    "schedule_id": 28,
+    "date": "2025-08-20",
+    "driver_coords": [40.6892, -74.0445],
+    "clinic_coords": [40.7505, -73.9934],
+    "price": 31.5,
+    "time_margin": 3,
+    "workload": 3
+  },
+  {
+    "schedule_id": 29,
+    "date": "2025-08-20",
+    "driver_coords": [40.7484, -73.9857],
+    "clinic_coords": [40.7614, -73.9776],
+    "price": 36.0,
+    "time_margin": -3,
+    "workload": 5
+  },
+  {
+    "schedule_id": 30,
+    "date": "2025-08-20",
+    "driver_coords": [40.7306, -73.9352],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 28.0,
+    "time_margin": 7,
+    "workload": 4
+  },
+  {
+    "schedule_id": 31,
+    "date": "2025-08-15",
+    "driver_coords": [40.7550, -73.9860],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 18.5,
+    "time_margin": 0,
+    "workload": 1
+  },
+  {
+    "schedule_id": 32,
+    "date": "2025-08-16",
+    "driver_coords": [40.7560, -73.9830],
+    "clinic_coords": [40.7580, -73.9855],
+    "price": 20.0,
+    "time_margin": 1,
+    "workload": 1
+  },
+  {
+    "schedule_id": 33,
+    "date": "2025-08-17",
+    "driver_coords": [40.7540, -73.9870],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 19.5,
+    "time_margin": -1,
+    "workload": 2
+  },
+  {
+    "schedule_id": 34,
+    "date": "2025-08-18",
+    "driver_coords": [40.7525, -73.9850],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 21.0,
+    "time_margin": 2,
+    "workload": 1
+  },
+  {
+    "schedule_id": 35,
+    "date": "2025-08-19",
+    "driver_coords": [40.7500, -73.9840],
+    "clinic_coords": [40.7549, -73.9840],
+    "price": 19.0,
+    "time_margin": 0,
+    "workload": 1
+  }
+]
