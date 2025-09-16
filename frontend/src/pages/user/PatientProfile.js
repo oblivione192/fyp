@@ -61,7 +61,13 @@ export default function PatientProfile(){
               <Card.Title className="title">Ride Info</Card.Title> 
               <div className="horizontalSection">
                   <Form.Label>Wheelchair Needed?</Form.Label> 
-                  <FormSelect> 
+                  <FormSelect 
+                   onChange={(e)=>{
+                        handleUpdate({
+                           wheelchairNeeded :  e.target.value === "Yes" ? true : false 
+                        },'user')
+                    }}
+                  > 
                       <option>--</option>
                       <option>Yes</option> 
                       <option>No</option>
@@ -69,11 +75,29 @@ export default function PatientProfile(){
               </div> 
               <div className="horizontalSection">
                   <Form.Label>Assistace Required?</Form.Label> 
-                  <FormSelect>
+                  <FormSelect
+                   
+                  >
                       <option>--</option> 
                       <option>Yes</option> 
                       <option>No</option>
                   </FormSelect>
+              </div>
+              <div className="horizontalSection">
+                 <Form.Label>Preferred Language</Form.Label> 
+                 <FormSelect 
+                   onChange={(e)=>{
+                       handleUpdate({preferredLanguage:e.target.value},
+                        'user'
+                       )
+                   }}
+                 > 
+                    <option>--</option>
+                    <option>English</option> 
+                    <option>Malay</option> 
+                    <option>Mandarin</option> 
+                    <option>Tamil</option>
+                 </FormSelect>
               </div>
             </Card>
             <Card>

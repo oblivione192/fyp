@@ -6,8 +6,8 @@ import store from './reducers';
 import GlobalModals from './GlobalModals';
 import App from './App';
 import reportWebVitals from './reportWebVitals';  
-import API from './controllers';
-
+import API from './controllers'; 
+import { getUserLocation } from './reducers/locationReducer';
 
 
 let currentAuthState = {
@@ -75,6 +75,7 @@ store.subscribe(()=>{
   }
 }); 
 
+store.dispatch(getUserLocation())
 
 
 

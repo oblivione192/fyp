@@ -240,19 +240,24 @@ export default function Appointment() {
              </div>
              <div className="gridMenu" style={{ marginTop: '20px' }}> 
                 <div 
-                    className="optionBox" 
+                    className="optionBox"     
+                    id="clickAppointmentButton"
                     style={{
                         backgroundColor:'#6FAF98', 
                         padding: '20px', 
                         height: '95px', 
                         fontSize: '1rem',
-                        borderRadius: '10px',
+                        borderRadius: '10px', 
+                        width:'20rem', 
                         textAlign: 'center',
                         cursor: 'pointer'
                     }}
                     onClick={() => navigate('/book')}
                 >
-                    <p className="buttonText" style={{ color: 'white', fontSize: '18px', fontWeight: 'bold'}}>
+                    <p className="buttonText"  
+                    
+                    style={{ color: 'white', fontWeight: 'bold'}}
+                    >
                         Click Here to Book an Appointment
                     </p>
                 </div>

@@ -5,6 +5,8 @@ import healthReducer from './healthRecordReducer.js';
 import profileReducer from './profileReducer.js';
 import enrollmentReducer from './enrollmentReducer.js'; 
 import slotsReducer from './slotsReducer.js'; 
+import locationReducer from './locationReducer.js'
+
 
 const appReducer = combineReducers({
   Auth: authReducer,
@@ -12,7 +14,8 @@ const appReducer = combineReducers({
   Health: healthReducer,
   Profile: profileReducer,
   Enrollment: enrollmentReducer,
-  Slot: slotsReducer
+  Slot: slotsReducer,
+  Location: locationReducer
 });
 
 const rootReducer = (state, action) => {
@@ -20,8 +23,8 @@ const rootReducer = (state, action) => {
     return appReducer(undefined, { type: undefined });
   }
   return appReducer(state, action);
-};
-
+}; 
+ 
 export default rootReducer;
 
 

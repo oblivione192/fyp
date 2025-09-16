@@ -2,11 +2,13 @@ class ClinicController{
   constructor(headers){
     this.headers = headers;
   }
-     async getClinicsByService(service_id){
+     async getClinicsByService(service_id,options={}){ 
+        //options include lat, lng and withPhoto
         const params = new URLSearchParams({
             option: 'ByService',
-            service: service_id
-          });
+            service: service_id,
+            ...options
+          }); 
           
           const response = await fetch(`/api/clinic/getClinic?${params.toString()}`,
            {

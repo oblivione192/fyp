@@ -3,11 +3,14 @@ import userRouter from "./api/v1/auth.js";
 import appointmentRouter from "./api/v1/appointments.js"; 
 import clinicRouter from "./api/v1/clinic.js"; 
 import hrRouter from "./api/v1/healthRecord.js"; 
-import profileRouter from "./api/v1/profile.js";
+import profileRouter from "./api/v1/profile.js"; 
+import MVARouter from "./api/v1/ride.js";
 import jwt from 'jsonwebtoken';
 import path from 'path';  
-import medRouter from "./api/v1/medications.js"; 
+import medRouter from "./api/v1/medications.js";  
+
 import adminRouter from "./api/v1/admin.js"; 
+import locationRouter from "./api/v1/location.js";
 import cookieParser from "cookie-parser"; 
 import {match,pathToRegexp} from 'path-to-regexp'
 const PORT = 3000;   
@@ -76,7 +79,10 @@ app.use('/api/clinic',clinicRouter);
 app.use('/api/health',hrRouter); 
 app.use('/api/profile',profileRouter); 
 app.use('/api/medication',medRouter);  
+app.use('/api/location',locationRouter); 
+app.use('/api/mva',MVARouter);  
 app.use('/auth/admin',adminRouter);   
+
 
 const routerPrefixes = [
   { router: userRouter, prefix: "/auth/user" },
@@ -86,6 +92,8 @@ const routerPrefixes = [
   { router: hrRouter, prefix: "/api/health" },
   { router: medRouter, prefix: "/api/medication" },
   { router: adminRouter, prefix: "/auth/admin" },
+  { router: locationRouter, prefix: "/api/location" }, 
+  { router: MVARouter, prefix: "/api/mva"}
 ]; 
 
 routerPrefixes.forEach(({ router, prefix }) => {

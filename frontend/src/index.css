@@ -8,7 +8,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
- @media screen and (max-width : 600px) {
+ @media screen and (max-width : 600px) { 
+   @font-face{
+      font-family: 'Roboto', sans-serif;
+      src: url('/public/assets/Roboto-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+   }
+   p { 
+     font-family: 'Roboto',sans-serif;  
+   }
    .topBar{
    background-color:#3cd03c;  
    padding: 10px;  
@@ -45,9 +54,33 @@ body {
    width: 100%; 
    display:flex; 
    justify-content:space-between; 
+ }   
+ .gridMenu {
+  display: grid; 
+  grid-template-columns: repeat(2, 2fr);
+  margin: 5px;
+  row-gap: 5px; 
+  gap: 5px;
+  align-items: center;
  }  
-} 
+ .gridMenu:nth-last-child{ 
+   align-items:center; 
+ }
+ .gridMenu .optionBox{
+    width: 10rem;  
+    height: 10rem; 
+    font-size: 1.1rem;    
 
+    word-wrap:break-word; 
+    text-align:right;   
+    margin: 0.2rem; 
+ } 
+  .gridMenu .optionBox .buttonText {
+    overflow-wrap: break-word; /* modern */
+    word-break: break-word;    /* fallback */
+    white-space: normal;       /* ensures wrapping is allowed */
+  }
+ }
 .nav-link{
    color:white
 }
@@ -263,6 +296,9 @@ button:hover {
     width: 200px; /* Fixed width */
     height: 60px; /* Fixed height */
     gap: 10px;
+} 
+#clickAppointmentButton{ 
+   width: 80%; 
 }
  #healthInfoWrapper{
    background-color: white; 
@@ -301,7 +337,7 @@ button:hover {
 .buttonText {
   white-space: nowrap; 
   font-weight:bold; 
-
+  font-family: 'Roboto',sans-serif;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-grow: 1;
@@ -322,7 +358,7 @@ button:hover {
 
 .gridMenu {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  grid-template-columns: repeat(2, 2fr);
   margin: 5px;
   row-gap: 5px; 
   gap: 5px;
@@ -362,6 +398,5 @@ button:hover {
    width: 100%; 
    display:flex; 
    justify-content:space-evenly; 
-   
 }  
 

@@ -11,6 +11,7 @@ import MedicationPage from './pages/user/Medications.js';
 import SlotManagement from './pages/admin/SlotManagement';
 import Login from './Login.js';
 import Register from './Register.js'; 
+import RidesPage from './pages/user/MVARides.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Entrance from './Entrance.js';
 import PatientAppointments from './pages/admin/PatientAppointments.js';
@@ -102,7 +103,8 @@ export default function App() {
           <Route path="/healthRecord" element={<PrivateRoute role="user"><HealthRecord/></PrivateRoute>} />  
           <Route path="/profile" element={<PrivateRoute role={userRole}><Profile/></PrivateRoute>}/>
           <Route path="/medication" element={<PrivateRoute role="user"><MedicationPage/></PrivateRoute>}/>   
-          <Route 
+          <Route path="/rides" element={<PrivateRoute role="user"><RidesPage/></PrivateRoute>}/>
+           <Route 
            path="/adminLogin" element={ isLoggedIn ?  <Navigate to="/home" replace/> : <AdminLogin/>}/>
           <Route 
             path="/login" 

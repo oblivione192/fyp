@@ -3,8 +3,8 @@ import MedicationController from "./medicationsController";
 import ProfileController from "./profileController"; 
 import HealthRecordController from "./healthRecordController"; 
 import ClinicController from "./clinicController";
-
-
+import LocationController from "./locationController";
+import RideController from "./rideController";
 
 class API {
 
@@ -22,20 +22,21 @@ class API {
       medication: new MedicationController(this.Headers),
       profile: new ProfileController(this.Headers),
       health: new HealthRecordController(this.Headers),
-      clinic: new ClinicController(this.Headers)
+      clinic: new ClinicController(this.Headers),
+      location: new LocationController(this.Headers),
+      ride: new RideController(this.Headers)
     };
   }
   static getHeaders(){
      return this.Headers;
   }
   static updateHeaders(entry){
-    
      Object.assign(this.Headers,entry);  
      this.#controllers = null; 
   }
   static getController(name) {  
     console.log("Headers: ",this.Headers);  
-    console.log("Controller Name: ",name)
+    console.log("Controller Name: ",name) 
     if (!this.#controllers) {
       this.#initControllers();
     }

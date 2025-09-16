@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FaCalendarCheck, FaClock,FaVial, FaPills, FaNotesMedical} from 'react-icons/fa';
+import { FaCalendarCheck, FaClock,FaVial, FaPills, FaNotesMedical, FaCar} from 'react-icons/fa';
 import { useState,useEffect } from 'react'; 
 import { useNavigate,useLocation } from 'react-router-dom'; 
 import OptionBox from '../../components/OptionBox'; 
@@ -7,37 +7,11 @@ import API from '../../controllers';
 import {useSelector,useDispatch} from 'react-redux';  
 import { initProfile } from '../../reducers/profileReducer'; 
 import Clock from '../../components/Clock';
-import useProfile from '../../hooks/useProfile';
-function calculateAge(icnumber) {
-  const birthYearLastTwoDigits = parseInt(icnumber.slice(0, 2), 10);
-  const birthMonth = parseInt(icnumber.slice(2, 4), 10) - 1; 
-  const birthDay = parseInt(icnumber.slice(4, 6), 10);
+import useProfile from '../../hooks/useProfile';  
+import calculateAge from '../../util/calculateAge';
 
+import {Row,Col} from 'react-bootstrap'
 
-  const currentYear = new Date().getFullYear();
-  const currentYearLastTwoDigits = currentYear % 100;
-
-  let birthYear;
-  if (birthYearLastTwoDigits > currentYearLastTwoDigits) {
-    birthYear = 1900 + birthYearLastTwoDigits;
-  } else {
-    birthYear = 2000 + birthYearLastTwoDigits;
-  }
-
-  const birthDate = new Date(birthYear, birthMonth, birthDay);
-  const today = new Date();
-
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const hasHadBirthdayThisYear =
-    today.getMonth() > birthDate.getMonth() ||
-    (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
-
-  if (!hasHadBirthdayThisYear) {
-    age--;
-  }
-
-  return age;
-}
 
 function HomePage() {    
     const navigate = useNavigate();  
@@ -55,6 +29,9 @@ function HomePage() {
     const gotoHealthRecords = () =>{
       navigate('/healthRecord'); 
     }  
+    const gotoRides = () =>{
+       navigate('/rides')
+    }
 
     useEffect(()=>{   
       
@@ -75,13 +52,13 @@ function HomePage() {
 
     return (  
         <div>
-            <Clock />
+            <Clock /> 
+
             <div className="gridMenu">     
                   <OptionBox 
                      style={
                         {
-                           backgroundColor:"#9370DB",
-                           fontSize:"20px"
+                           backgroundColor:"#9370DB",  
                         }
                      }
                      IconComponent={FaCalendarCheck} 
@@ -110,17 +87,17 @@ function HomePage() {
                     onClick={gotoMedications}
                 /> 
 
-                <OptionBox 
-                    style={  
+         
+                 <OptionBox  
+                  style={ 
                      {
-                     backgroundColor:"#eb2f3f",
-                 
-                    }
-                  }
-                    IconComponent={FaVial} 
-                    text="Test Results"
-                /> 
-                 
+                        backgroundColor:"#bfc42b"
+                     }
+                  } 
+                  IconComponent={FaCar} 
+                  text="Rides"
+                  onClick={gotoRides}
+                 />
             </div>
         </div>
     );

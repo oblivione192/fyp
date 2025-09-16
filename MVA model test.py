@@ -3,103 +3,94 @@ import joblib
 from joblib import load
 import pandas as pd
 import numpy as np
-from sklearn.metrics import classification_report
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.preprocessing import LabelEncoder
+from MVA_model_util import calculate_fitness, check_language_match, feature_cols
+# Load trained regressor
+model = load('mva_schedule_regressor.joblib')
 
-# Load trained model
-model = load('mva_schedule_model.joblib')
-
-# -------------------------------
-# 0. Setup encoders (must match training encoders)
-# -------------------------------
-# For production, you should persist encoders too, but here we'll refit them
-staff_names = ['Ms. Tang', 'Ms. Kumar', 'Ms. Raychel', 'Ms. Aziz']
-languages = ['English', 'Mandarin', 'Malay']
-
-le_name = LabelEncoder().fit(staff_names)
-le_lang = LabelEncoder().fit(languages)
 
 # -------------------------------
-# 1. Generate ground truth test data
+# 1. Generate candidate schedules
 # -------------------------------
-n_samples = 1000
+n_samples = 50
 
-positive_data_ground = pd.DataFrame({
-    'staff_name': np.random.choice(staff_names, n_samples),
+
+languages = ['English', 'Mandarin', 'Malay']  # possible patient languages
+
+
+
+# Random language assignment (so mismatches appear)
+rand_languages = np.random.choice(languages, n_samples)
+
+# Create the DataFrame
+test_data = pd.DataFrame({
+    'language': rand_languages,   # random language (may mismatch staff)
+    'preferred_language': rand_languages, 
     'distance_patient_clinic': np.random.uniform(1, 15, n_samples),  # km 
     'distance_staff_patient': np.random.uniform(1, 15, n_samples),   # km
-    'time_margin': np.random.uniform(-150, 0, n_samples),            # minutes (neg = early)
-    'workload': np.random.randint(1, 5, n_samples),                  # trips today
-    'language': np.random.choice(languages, n_samples),
-    'label': 1
+    'time_margin': np.random.uniform(-30, 0, n_samples),            # minutes (neg = early)
+    'workload': np.random.randint(1, 5, n_samples),                 # trips today
 })
 
-negative_data_ground = pd.DataFrame({
-   
-    'staff_name': np.random.choice(staff_names, n_samples),
-    'distance_patient_clinic': np.random.uniform(10, 100, n_samples),  # km 
-    'distance_staff_patient': np.random.uniform(10, 100, n_samples),   # km
-    'time_margin': np.random.uniform(1, 150, n_samples),               # minutes (late)
-    'workload': np.random.randint(6, 12, n_samples),                   # trips today
-    'language': np.random.choice(languages, n_samples),
-    'label': 0
-})
 
-# -------------------------------
-# 2. Apply cost/fitness score
-# -------------------------------
-w_wait, w_workload, w_dist = 0.5, 0.4, 0.3
-
-def calculate_cost(row):
-    waiting_time = abs(row['time_margin'] / 150)   # normalize
-    avg_distance = ((row['distance_patient_clinic'] + row['distance_staff_patient']) / 2) / 15
-    workload_term = row['workload'] / 10
-    return w_wait * waiting_time + w_dist * avg_distance + w_workload * workload_term
-
-num_vars = 3
-for df in [positive_data_ground, negative_data_ground]:
-    df['cost'] = df.apply(calculate_cost, axis=1)
-    df['fitness_score'] = df['cost'].apply(lambda c: num_vars - c)
-    df.drop(columns=['cost'], inplace=True)
+test_data['true_fitness'] = test_data.apply(calculate_fitness, axis=1)
 
 # -------------------------------
 # 3. Encode categorical features
 # -------------------------------
-for df in [positive_data_ground, negative_data_ground]:
-    df['staff_name'] = le_name.transform(df['staff_name'])
-    df['language'] = le_lang.transform(df['language'])
+test_data['language_match'] = test_data.apply(check_language_match, axis = 1)
+
 
 # -------------------------------
-# 4. Prepare data for prediction
+# 4. Predict with the regressor
 # -------------------------------
-X_test = pd.concat([
-    positive_data_ground.drop(columns=['label']),
-    negative_data_ground.drop(columns=['label'])
-], ignore_index=True)
-
-y_test = pd.concat([
-    positive_data_ground['label'],
-    negative_data_ground['label']
-], ignore_index=True)
-
-# -------------------------------
-# 5. Make predictions
-# -------------------------------
+X_test = test_data[feature_cols]
 y_pred = model.predict(X_test)
+test_data['predicted_fitness'] = y_pred
+# -------------------------------
+# 5. Rank schedules by predicted fitness
+# -------------------------------
+best_schedules = test_data.sort_values(by="predicted_fitness", ascending=False)
 
-approved_schedules = X_test[y_pred == 1].copy()
-approved_schedules['predicted_label'] = 1
-
-feature_cols = X_test.columns  # should match training features
-proba = model.predict_proba(approved_schedules[feature_cols])
-
-# Probability of "accept" class (class 1)
-approved_schedules['accept_proba'] = proba[:, 1]
-
-# Save approved schedules
-approved_schedules.to_csv("approved_schedules.csv", index=False)
+# Save ranked schedules
+best_schedules.to_csv("ranked_schedules.csv", index=False)
 
 # -------------------------------
-# 6. Evaluate performance
+# 6. Evaluate regression accuracy
 # -------------------------------
-print(classification_report(y_test, y_pred))
+mae = mean_absolute_error(test_data['true_fitness'], test_data['predicted_fitness'])
+mse = mean_squared_error(test_data['true_fitness'], test_data['predicted_fitness'])
+r2 = r2_score(test_data['true_fitness'], test_data['predicted_fitness'])
+
+print("Regression Performance:")
+print(f"MAE: {mae:.4f}")
+print(f"MSE: {mse:.4f}")
+print(f"R²: {r2:.4f}")
+
+print("\nTop 5 Recommended Schedules (Predicted Fitness):")
+print(best_schedules.head(5))
+
+from sklearn import tree
+import matplotlib.pyplot as plt
+
+# -------------------------------
+# 7. Visualize Decision Tree Splits
+# -------------------------------
+plt.figure(figsize=(24, 12))
+tree.plot_tree(
+    model,
+    feature_names=X_test.columns,
+    filled=True,
+    rounded=True,
+    fontsize=9
+)
+
+plt.title("Decision Tree Splits for Schedule Fitness Prediction", fontsize=16, fontweight="bold")
+plt.show()
+
+# Save as PNG
+plt.savefig("decision_tree_splits.png", dpi=300, bbox_inches="tight")
+plt.close()
+
+print("Decision tree diagram saved as 'decision_tree_splits.png'")

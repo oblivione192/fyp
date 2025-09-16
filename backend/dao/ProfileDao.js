@@ -14,7 +14,7 @@ export default class ProfileDao{
         try{
              switch (userType) {
               case "User":
-                  query = "SELECT fname, mname, lname, picture, icnumber, email, address FROM user WHERE user_id = ?";
+                  query = "SELECT fname, mname, lname, picture, icnumber, email, address, wheelchairNeeded, preferredLanguage FROM user WHERE user_id = ?";
                   break;
               case "Doctor":
                   query = "SELECT fname, mname, lname, dob, email, contactNO, degree, picture FROM doctor WHERE DoctorId = ?";

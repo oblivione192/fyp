@@ -2,16 +2,27 @@ import { useEffect, useRef, useState} from 'react';
 import { IoMdArrowBack } from "react-icons/io" 
 import {AiFillHome} from "react-icons/ai"
 import {useNavigate} from 'react-router-dom';  
-import { useDispatch } from 'react-redux';   
+import { useDispatch } from 'react-redux';    
+import Card from 'react-bootstrap/Card';   
+import { Row,Col,Container } from 'react-bootstrap';
+import ListDisplayer from '../../components/ListDisplayer.jsx'; 
+import {FormSelect} from 'react-bootstrap';
 import API from '../../controllers/';
 import { AddAppointment,setChangesRead} from '../../reducers/appointmentReducer.js'; 
-
+import { useSelector } from 'react-redux';
+import Event from '../../util/eventBus.js';
 import React from 'react';
 
 
 function AppointmentProcedure({ step, setStep }) {  
   const navigate = useNavigate(); 
-  const dispatch = useDispatch();   
+  const dispatch = useDispatch();    
+
+  const {latitude,longitude} = useSelector(state => state.Location) 
+  const {address, wheelchairNeeded, preferredLanguage} = useSelector(state => state.Profile.profile) 
+  
+  const Latitude =  useRef(latitude); 
+  const Longitude = useRef(longitude); 
 
   const SlotId =  useRef('');   
   const PatientId = useRef('');   
@@ -20,11 +31,31 @@ function AppointmentProcedure({ step, setStep }) {
   const date = useRef('');  
   const visit_purpose = useRef('');    
   const startTime = useRef(''); 
-  const endTime = useRef('');  
+  const endTime = useRef('');   
   
   const [services,setServices] =  useState(null); 
   const [clinics, setClinics] = useState(null); 
-  const [slots, setSlots] = useState(null);  
+  const [rides, setRides] =  useState([]); 
+  const [slots, setSlots] = useState(null);    
+
+  const handleRecommend = ()=>{ 
+      API.getController("Ride").recommendRides({
+                    appointment_start_time: startTime.current || new Date().toISOString(), 
+                    appointment_end_time: endTime.current || new Date(new Date().getTime() + 3600 * 1000).toISOString(),  
+                    userCoordinates: {latitude:Latitude.current,longitude:Longitude.current},
+                    destinationClinicId: ClinicId.current, 
+                    requiresWheelchair: wheelchairNeeded, 
+                    preferredLanguage: preferredLanguage
+                },{
+
+                })
+                .then((rides)=>{ 
+                    setRides(rides); 
+                }) 
+                .catch((err)=>{
+                    Event.emit("OnFailure",err.message)
+                }) 
+   }
   useEffect(()=>{
       switch(step){
         case 1:  
@@ -39,15 +70,20 @@ function AppointmentProcedure({ step, setStep }) {
 
         case 2:  
          
-         API.getController("clinic").getClinicsByService(service_id.current)
-         .then((clinics)=>{
-           console.log(clinics);
-           setClinics(clinics); 
-         }) 
-         .catch((err)=>{
-          console.log(err); 
-         })
-         break;
+          API.getController("clinic").getClinicsByService(service_id.current,
+            {
+              lat: latitude  ? latitude : '3.0738', 
+              lng: longitude ? longitude : '101.5183',
+            }
+          )
+          .then((clinics)=>{
+            console.log(clinics);
+            setClinics(clinics); 
+          }) 
+          .catch((err)=>{
+            console.log(err); 
+          })
+          break;
 
         case 3: 
           API.getController("Appointment").getUpcomingSlots(ClinicId.current)
@@ -65,8 +101,11 @@ function AppointmentProcedure({ step, setStep }) {
           .catch((err)=>{
             console.log(err);
           }) 
-          break;
-       
+          break; 
+
+          
+        case 4:
+           break; 
         default:
            console.log("DONE");  
            setTimeout(()=>{
@@ -98,7 +137,8 @@ function AppointmentProcedure({ step, setStep }) {
         <StepLabel number={1} current={step} label="Choose Service" />
         <StepLabel number={2} current={step} label="Select Clinic" />
         <StepLabel number={3} current={step} label="Pick Date & Slot" />
-        <StepLabel number={4} current={step} label="Finish" />
+        <StepLabel number={4} current={step} label="Book a Ride" /> 
+        <StepLabel number={5} current={step} label="Finish"/>
       </div>
 
       {/* Step Content */}
@@ -135,16 +175,33 @@ function AppointmentProcedure({ step, setStep }) {
                clinics == null ? 
                  <><p>Loading</p></> 
                  :
-                 clinics.map((clinic)=>{
-                     return(
-                         <button onClick={()=>{
-                           ClinicId.current =  clinic.ClinicId;  
-                           setStep(3)
-                         }}>
-                             {clinic.name}  
-                         </button>
-                     )
-                 })
+                clinics.map((clinic)=>{ 
+                  return(
+                     <ListDisplayer data={[clinic]}>
+                        {(item)=>( 
+                         <Card> 
+                           <Row>
+                                <Card.Body style={{overflowX:'hidden'}}> 
+                                  <Card.Title>{item.name}</Card.Title>
+                                  <Card.Text>
+                                    {item.address}  
+                                  </Card.Text> 
+                                  <button onClick = {() => { 
+                                    ClinicId.current = item.ClinicId;  
+                                    PatientId.current = localStorage.getItem("UserId"); 
+                                    setStep(3)
+                                  } }> 
+                                    Select
+                                  </button>
+                                </Card.Body>    
+                              </Row> 
+                           
+                            </Card> 
+                         
+                       )}
+                     </ListDisplayer> 
+                  )
+                })    
             }
         
           </div>
@@ -153,13 +210,13 @@ function AppointmentProcedure({ step, setStep }) {
           <div style={{overflowY:'scroll',maxHeight:'24rem'
           }}>
             <h2>Select Slot</h2> 
-    
+            <button onClick={()=>{setStep(4)}}>Dummy button to click next</button>
             {    
-    
+     
                 slots == null ? 
                 <><p>Loading</p></> 
                 :
-              
+                      
                   
                       Object.entries(slots).map(([dateKey, slotsForDate]) => (
                             <div key={dateKey}>
@@ -186,7 +243,93 @@ function AppointmentProcedure({ step, setStep }) {
           </div>
         )}
         {step === 4 && ( 
+           <div>  
+
+              <p><strong>Ride Booking</strong></p>   
+               <Container>
+  <Row className="align-items-center" style={{ marginBottom: '2rem' }}>
+    {/* Label column */}
+    <Col sm={4}>
+      <p style={{ margin: 0 }}>Pickup From:</p>
+    </Col>
+
+    {/* Select column */}
+    <Col sm={8}>
+      <FormSelect
+        onChange={async (e) => {
+          if (e.target.value === "Home Address") {
+            console.log("Getting home address coordinates");
+            const coordinates = await API.getController("location")
+              .getLocationCoordinates(address);
+
+            Latitude.current = coordinates.lat;
+            Longitude.current = coordinates.lng;
+          } else if (e.target.value === "Test Coordinates") {
+            Latitude.current = 4.332495;
+            Longitude.current = 101.1478746;
+          } else {
+            Latitude.current = latitude;
+            Longitude.current = longitude;
+          }
+
+          if (e.target.value !== "--") {
+            handleRecommend();
+          }
+        }}
+      >
+        <option>--</option>
+        <option>Test Coordinates</option>
+        <option>Home Address</option>
+        <option>Current Location</option>
+      </FormSelect>
+    </Col>
+  </Row>
+
+  {/* Rides list stays below */}
+  <div style={{ maxHeight: '10rem', height: '10rem' }}>
+    {rides.length === 0 ? (
+      <div>No rides available</div>
+    ) : (
+      <ListDisplayer data={rides}>
+        {(item) => (
+          <Card>
+            <Card.Body>
+              <p>
+                Session Start Time:{" "}
+                {new Date(item.session_start_time).toLocaleTimeString(undefined, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </p>
+              <p>
+                Session End Time:{" "}
+                {new Date(item.session_end_time).toLocaleTimeString(undefined, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </p>
+            </Card.Body>
+          </Card>
+        )}
+      </ListDisplayer>
+    )}
+  </div>
+</Container>
+              
           
+              <button  
+              style={{
+                 marginTop:'4rem'
+              }}
+                onClick={()=>{setStep(5)}}
+              > 
+                Skip
+              </button>
+            </div>
+        )} 
+        {step === 5 && ( 
           <div>
             <h2>Booking Complete 🎉</h2>
             <p>Thank you for booking your appointment!</p>
