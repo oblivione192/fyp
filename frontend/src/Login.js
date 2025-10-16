@@ -2,42 +2,14 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "./hooks/useLogin.js"; // update path as needed
-
+import InstallPWAButton from "./components/InstallPWA.jsx";
 export default function Login() {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [icNumber, setIcNumber] = useState("");
   const [password, setPassword] = useState("");
   const { login, error } = useLogin();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstallButton(true);
-    });
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", () => {});
-    };
-  }, []);
-
-  const handleInstallClick = () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === "accepted") {
-        console.log("User accepted the PWA install");
-      } else {
-        console.log("User dismissed the PWA install");
-      }
-      setDeferredPrompt(null);
-      setShowInstallButton(false);
-    });
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -191,26 +163,7 @@ export default function Login() {
           </div>
         )}
 
-        {/* Install App Button */}
-        {showInstallButton && (
-          <button
-            id="installButton"
-            onClick={handleInstallClick}
-            style={{
-              marginTop: "1rem",
-              width: "100%",
-              padding: "0.6rem",
-              backgroundColor: "#444",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px",
-              fontWeight: "bold",
-            }}
-          >
-            Install App
-          </button>
-
-        )} 
+        <InstallPWAButton/>
         <button onClick={()=>{navigate('/adminLogin')}}>
            Admin Login
         </button>

@@ -1,7 +1,8 @@
 import express from 'express';
 import AppointmentDao from '../../dao/AppointmentDao.js';
 import SlotDao from '../../dao/SlotDAO.js';
-import ServiceDao from '../../dao/ServiceDao.js';
+import ServiceDao from '../../dao/ServiceDao.js'; 
+import Event from '../../events/eventBus.js';
 
 const appointmentRouter = express.Router();
 const appDao = new AppointmentDao();
@@ -27,7 +28,15 @@ async function checkAppointmentClashes(date, newStartTime, newEndTime, slotId, c
     app.date === date && isTimeOverlap(newStartTime, newEndTime, app.startTime, app.endTime)
   );
 }
-
+appointmentRouter.put("/mockConfirmAppointment",async function(req,res){
+    console.log("Hello you have confirmed an appointment.") 
+    Event.emit("notifyUser",{
+        user_id: req.user_id, 
+        title: "Your appointment has been confirmed!", 
+        body:"Your appointment will be today at 4 pm. Don't miss it ya!"
+    })
+    return res.send({message:"Ok"})
+})
 appointmentRouter.post("/addClinicSlot",async function(req,res){
    const clinicId = req.clinicId; 
    const {slotDate,startTime,endTime} = req.body;  
@@ -59,8 +68,19 @@ appointmentRouter.post("/addClinicSlot",async function(req,res){
 appointmentRouter.put("/confirmAppointment", async (req, res) => {
   const { AppointmentId } = req.body;
   try {
-    const result = await appDao.confirmAppointment(AppointmentId);
-    if (result) {
+    const result = await appDao.confirmAppointment(AppointmentId); 
+    if (result) {  
+      const appointments = await appDao.getAppointmentById(AppointmentId); 
+      const user_id_of_appointment =  appointments[0].user_id;  
+
+      Event.emit('notifyUser',{ 
+          user_id: user_id_of_appointment,
+          title: "Appointment has been confirmed", 
+          body: ` 
+            Your appointment on ${new Date(appointments[0].slotDate).toLocaleDateString()} has been approved
+           `
+      }) 
+
       return res.send({ status: "Success" });
     } else {
       return res.status(400).send({ status: "Failure", message: "Unable to confirm appointment" });
@@ -118,7 +138,7 @@ appointmentRouter.post("/postponeAppointment",async(req,res)=>{
    if(appointmentClashes)return res.send({status:"Failure",message:"Appointment clashed with another"});  
    console.log("Executing here"); 
    try{
-    const result = await appDao.updateAppointment(
+    const result = await appDao.updateAppointmentBulk(
       AppointmentId,{
         SlotId: SlotId,
         startTime: newStartTime,
@@ -133,8 +153,9 @@ appointmentRouter.post("/postponeAppointment",async(req,res)=>{
     })} 
     return res.status(400).send({status:"Failure",message:"Error in updating. One or more invalid fields"}); 
    } 
-   catch{
-    return res.status(500).send({status:"Failure",message:"Internal server error"}); 
+   catch(err){ 
+    console.log(err.message); 
+    return res.status(500).send({status:"Failure",message:err.message}); 
    }
 })
 appointmentRouter.post('/updateAppointment',async(req,res)=>{

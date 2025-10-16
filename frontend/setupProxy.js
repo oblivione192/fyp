@@ -3,14 +3,14 @@ module.exports = function (app) {
     app.use(
         '/api',
         createProxyMiddleware({
-            target: 'http://localhost:3000',
+            target: 'https://localhost:3000',
             changeOrigin: true,
         })
     );
     app.use(
         '/auth',
         createProxyMiddleware({
-            target: 'http://localhost:3000',
+            target: 'https://localhost:3000',
             changeOrigin: true,
         })
     )

@@ -2,38 +2,83 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react'; 
 import { useDispatch, useSelector } from 'react-redux'; 
 import { AddAppointments, setChangesRead, InitAllAppointments,RemoveAppointment, UpdateAppointment } from '../../reducers/appointmentReducer.js';
+import RideStep from '../../components/RideStep.jsx';    
+import { AppointmentProcedure } from './BookAppointment.js';
+import { Modal } from 'react-bootstrap';
 import { Card, Button, Form, InputGroup} from 'react-bootstrap';
-import { IoMdArrowBack } from "react-icons/io" ; 
-import InformationCard from '../../components/InformationCard.jsx';
+import { IoMdArrowBack } from "react-icons/io" ;  
+import Event from '../../util/eventBus.js';
+import InformationCard from '../../components/InformationCard.jsx';  
 import API from '../../controllers/index.js';
 import PopupForm from '../../components/PopupForm.jsx'; 
 import useAppointment from '../../hooks/useAppointment.js';
-import AlertMessage from '../../components/AlertMessage.jsx';
+import AlertMessage from '../../components/AlertMessage.jsx'; 
+import { showFormattedTime,showFormattedDate } from '../../util/Time.js';  
+import {FormSelect} from 'react-bootstrap'
 // This component shows the list of appointments (confirmed, pending, history)  
 
 
 function formatData(formattedData){ 
-    return formattedData.map((data)=>{ 
+    return formattedData.map((data)=>{   
+         console.log(data.date); 
+         const formattedDate = showFormattedDate(data.date); 
+         const formattedStartTime = showFormattedTime(new Date(`${data.date}T${data.startTime}`).getTime()); 
+         const formattedEndTime = showFormattedTime(new Date(`${data.date}T${data.endTime}`).getTime()); 
          return{
             clinicId: data.clinicId,
+            visit_purpose: data.visit_purpose,
             AppointmentId: data.AppointmentId,
             title : data.clinicName,
-            imageSrc: data.imageSrc,
-            text : data.address+"\n"+data.date.split('T')[0]+"\n"+data.startTime + " -" + data.endTime
+            imageSrc: data.imageSrc, 
+            address: data.address,
+            date: formattedDate, 
+            startTime: formattedStartTime, 
+            endTime: formattedEndTime, 
          }
     })
 } 
 
+function RideBookingComponent({appointment_details,show,setShow}){   
+     const handleClose= ()=>{setShow(false)};   
+     const {latitude,longitude} = useSelector(state => state.Location)
+     const {address,wheelchairNeeded,preferredLanguage} =useSelector(state => state.Profile.profile)
+     return(  
+      <Modal show={show} onHide={handleClose}> 
+         <Modal.Body>
+            <RideStep 
+                appointmentStartTime = {appointment_details.startTime} 
+                appointmentEndTime = {appointment_details.endTime} 
+                appointmentDate = {appointment_details.date}  
+                clinicId= {appointment_details.clinicId}
+                wheelchairNeeded = {wheelchairNeeded}  
+                preferredLanguage = {preferredLanguage}
+                address ={address} 
+                latitude = {latitude} 
+                longitude = {longitude} 
+                onSkip={()=>{handleClose()}}
+                onCompleteRide={()=>handleClose()}
+          /> 
+         </Modal.Body>
+          
+      </Modal>
+     
+     )
+}
 function AppointmentActionBar({clinicId, AppointmentId}){  
     
-    const [showForm,setShowForm] = useState(false);  
+    const [showForm,setShowForm] = useState(false);   
+    
     const [slots, setSlots] = useState([]);
     const startTime = useRef(''); 
     const endTime = useRef(''); 
     const SlotId = useRef('');
+    const SelectedSlot = useRef(''); 
     const [displayedSlots, setDisplayedSlots] = useState([]);  
     const [showSlots,setShowSlots] = useState(false); 
     const [showAlert,setShowAlert] = useState(false);  
+    const [newAppointmentDetails,setNewAppointmentDetails] = useState(null); 
+    const [showRideModal, setShowRideModal]= useState(false); 
+
     const dispatch = useDispatch();
     const getUpcomingSlots = async()=>{ 
        if(slots.length === 0){
@@ -45,7 +90,7 @@ function AppointmentActionBar({clinicId, AppointmentId}){
     }
     const onDateChangeHandler= (date)=>{
         console.log("Selected date:", date);
-        console.log(slots);
+        
         const filtered = slots.filter(slot => new Date(slot.slotDate).toISOString().split("T")[0] === date);
         console.log("Filtered slots:", filtered);
         setDisplayedSlots(filtered);
@@ -61,7 +106,15 @@ function AppointmentActionBar({clinicId, AppointmentId}){
                     deletedAppointmentId : result.deletedId
                    }
                 )
-             )
+             )  
+             
+         }
+         else{
+            console.log("Failure to postpone")
+             Event.emit("OnFailure",{
+                 title:"Failure",
+                 message: result.message
+             })
          }
        })
     } 
@@ -70,16 +123,43 @@ function AppointmentActionBar({clinicId, AppointmentId}){
        console.log(AppointmentId,SlotId.current,startTime.current,endTime.current);
      
        API.getController('appointment').postponeAppointment(AppointmentId,SlotId.current,startTime.current,endTime.current)
-       .then((resp)=>{
-        return resp.json(); 
-       })
        .then((result)=>{
         if(result.status === "Success"){
+             const newStartTime = result.updatedData.newStartTime; 
+             const newEndTime = result.updatedData.newEndTime; 
+            
              dispatch(
                 UpdateAppointment(
-                    {updatedAppoinment: result.updatedData}
+                    {updatedAppointment: { 
+                         AppointmentId: AppointmentId,  
+                         date :  SelectedSlot.current.slotDate, 
+                         startTime:  newStartTime,
+                         endTime: newEndTime
+                    }}
                 )
-             )
+             ) 
+             setNewAppointmentDetails({
+                date: SelectedSlot.current.slotDate, 
+                clinicId: clinicId,
+                startTime: newStartTime,
+                endTime: newEndTime 
+             }) 
+
+             setShowRideModal(true); 
+        }
+        else{  
+            var message = ''; 
+            if(result.message.includes('clash')){
+                message = `Sorry! You have another appointment on ${showFormattedDate(SelectedSlot.current.slotDate)} at 
+                 ${showFormattedTime(new Date(SelectedSlot.current.slotDate+"T"+startTime.current).getTime())}. Please choose another slot.`
+            }
+            else{
+                message = result.message; 
+            }
+            Event.emit("OnFailure",{
+                 title:"Its okay do not panic. We got you.",
+                 message: message
+             })
         }
        })
        .catch((err)=>{
@@ -96,40 +176,58 @@ function AppointmentActionBar({clinicId, AppointmentId}){
      }
     return( 
       <>
-        <div className="actionBar" style={{display:'flex'}}> 
-            <Button variant="primary" onClick={async()=>{await getUpcomingSlots(); handleShowForm()}}>Postpone</Button> 
-            <Button variant="danger"  onClick={handleShowAlert}>Cancel</Button>  
+        <div className="actionBar" style={{display:'flex',justifyContent:'space-between'
+        }}> 
+            <Button 
+            variant="primary"  
+            onClick={async()=>{await getUpcomingSlots(); handleShowForm()}}
+            >Postpone
+            </Button> 
+
+
+            <Button 
+            variant="danger"  
+            onClick={handleShowAlert}
+            >
+                Cancel
+            </Button>  
         </div>  
 
-        <PopupForm title="Appoinment Postpone" showModal={showForm} onClose={()=>{setShowForm(false)}} submitHandler={handlePostpone}>
+        <PopupForm title="Appointment Postpone" showModal={showForm} onClose={()=>{setShowForm(false)}} submitHandler={handlePostpone}>
             <Form.Group>
                 <Form.Label>Select Postpone Slots</Form.Label> 
                 <InputGroup>   
                     <Form.Control 
-                   type="date"  
-                   onChange={(event)=>{ 
-                    setShowSlots(true);
-                    onDateChangeHandler(event.target.value); 
-                }}
-                /> 
+                        type="date"  
+                        onChange={(event)=>{ 
+                            setShowSlots(true);
+                            onDateChangeHandler(event.target.value); 
+                        }}
+                    /> 
                 <Form.Select
-                    name="SlotId"
+                    name="SlotId" 
+                    aria-placeholder='Click here to select the date'
                     style={{ display: showSlots ? 'block' : 'none' }}
                     onChange={(event) => {
-                        const selectedSlotId = event.target.value;
+                        const selectedSlotId = event.target.value;   
                         const selectedSlot = displayedSlots.find(
-                        (slot) => slot.SlotId.toString() === selectedSlotId
-                        );
+                           (slot) => slot.SlotId.toString() === selectedSlotId
+                        ); 
+
                         if (selectedSlot) {
                             startTime.current = selectedSlot.startTime;
                             endTime.current = selectedSlot.endTime;
-                            SlotId.current = selectedSlot.SlotId;
+                            SlotId.current = selectedSlot.SlotId;  
+                            SelectedSlot.current = selectedSlot; 
                         }
                     }}
                     >
+                    <option selected disabled>Click here To select a Date</option>
                     {displayedSlots.map((slot, index) => (
                         <option key={index} value={slot.SlotId}>
-                        {slot.startTime + ' - ' + slot.endTime}
+                        {showFormattedTime(new Date(`${slot.slotDate}T${slot.startTime}`).getTime()) 
+                        + ' - ' 
+                        + showFormattedTime(new Date(`${slot.slotDate}T${slot.endTime}`).getTime())}
                         </option>
                     ))}
                 </Form.Select>
@@ -137,7 +235,14 @@ function AppointmentActionBar({clinicId, AppointmentId}){
                
             </Form.Group>
         </PopupForm> 
-        
+       {
+         newAppointmentDetails && 
+         <RideBookingComponent 
+           appointment_details={newAppointmentDetails} 
+           show={showRideModal} 
+           setShow={setShowRideModal}
+         /> 
+       }
         <AlertMessage 
             body="Are you sure you want to cancel?" show={showAlert} positiveText="Yes" negativeText="No"  
             positiveHandler={handleCancellation} negativeHandler={()=>{}} setShow={setShowAlert}
@@ -146,7 +251,8 @@ function AppointmentActionBar({clinicId, AppointmentId}){
     )
 }
 function AppointmentList({ appointments }) {
-    const [activeTab, setActiveTab] = useState('confirmed'); // 'confirmed', 'pending', or 'history' 
+    const [activeTab, setActiveTab] = useState('confirmed'); // 'confirmed', 'pending', or 'history'  
+    const navigate = useNavigate(); 
     // Filter the appointments by status
     const confirmedAppointments = formatData(appointments.filter(appt => Date.now() < new Date(appt.date+"T"+appt.startTime) && appt.confirmed && !appt.attended ));
     const pendingAppointments = formatData(appointments.filter(appt => Date.now() < new Date(appt.date) && !appt.confirmed));
@@ -160,31 +266,24 @@ function AppointmentList({ appointments }) {
     
     return (
         <div id="appointmentList"> 
-            <select 
-                id="appointmentSelect"
+            <FormSelect 
+                id="appointmentSelect" 
+                style={{
+                    borderStyle:'none',
+                    backgroundColor:'#dedbe3ff',
+                    color:'#3d403e'
+                }}
                 onChange={(event) => {
                     setActiveTab(event.target.value);
                 }}
                
-        >
-                    <option value="confirmed">Upcoming Appointments</option>
-                    <option value="pending">Pending Appointments</option>
+            >
+                    <option value="confirmed">Confirmed Appointments</option>
+                    <option value="pending">Not Confirmed Appointments</option>
                     <option value="history">Appointment History</option>
-        </select>
+           </FormSelect>
           
-            <p style={{
-                fontWeight: 'bold', 
-                fontSize: '20px', 
-                color : activeTab === 'confirmed' ? 'green' 
-                    : activeTab === 'pending' ? '#c2c248' 
-                    : '#6c6c6c'
-            }}>
-                {activeTab === 'confirmed' ? 'Upcoming Confirmed Appointments' 
-                    : activeTab === 'pending' ? 'Upcoming Pending Appointments' 
-                    : activeTab === 'history'? 'Appointment History'
-                    : null
-                }
-            </p> 
+            
             <div id="displayedAppointments"> 
             {
             displayedAppointments.length > 0 ? (
@@ -197,26 +296,45 @@ function AppointmentList({ appointments }) {
                      src={appt.imageSrc} 
                      />  
                     }
-                   <Card.Title>
-                       {appt.title}
-                   </Card.Title>
-                   <Card.Body>
-                       {appt.text}
-                   </Card.Body> 
+                   <Card.Title 
+                    style={{
+                        marginTop:'0px',
+                        marginBottom:'0px',
+                    }}
+                   >
+                       <p>{appt.title}</p>  
+                       <strong style={{fontSize:'16px'}}>{appt.date}</strong>
+                   </Card.Title> 
                    
-                  {
+                   <Card.Footer
+                     style={{
+                        marginBottom:'9px'
+                     }}
+                   >
+                        <footer style={{fontSize:'15px'}}>
+                             <p>Slot: {appt.startTime}  to  {appt.endTime}</p> 
+                             <p>Address: {appt.address}</p>
+                             <p><strong>{appt.visit_purpose} Session</strong></p>
+                        </footer>
+                   </Card.Footer>
+                   {
                     activeTab === 'pending' && 
                     <AppointmentActionBar clinicId={appt.clinicId} AppointmentId={appt.AppointmentId}/>
                   }
-                   
                 </InformationCard> 
                 )
                })
             ): (
                 <p>No {activeTab} appointments. </p>
             )
-          }
-            </div>
+          } 
+         
+         </div> 
+            <Button 
+            id="bookAppointmentBt"
+            variant="success" 
+            onClick={()=>{navigate('/book')}}
+            >Click here to book an Appointment</Button>
         </div>
     );
 }
@@ -225,45 +343,24 @@ function AppointmentList({ appointments }) {
 // Main Appointment page
 export default function Appointment() {
     const navigate = useNavigate(); 
-    const appointments = useAppointment({ 
+    const {isAppointmentFetched,appointments}= useAppointment({ 
         option:'ByUser'
     }) 
 
     return ( 
         
-        <div style={{ padding: '20px' }}>   
+        <div style={{ padding: '5px' }}>   
              <div style={{display:'flex',alignItems:'center',gap:'5px'}}>
-               <IoMdArrowBack onClick={()=>{
-                  navigate('/home'); 
-               }}/>
-               <p>Back</p>
+               <Button onClick={()=>{
+                 navigate('/home')
+               }
+               }>Back to Home</Button>
              </div>
              <div className="gridMenu" style={{ marginTop: '20px' }}> 
-                <div 
-                    className="optionBox"     
-                    id="clickAppointmentButton"
-                    style={{
-                        backgroundColor:'#6FAF98', 
-                        padding: '20px', 
-                        height: '95px', 
-                        fontSize: '1rem',
-                        borderRadius: '10px', 
-                        width:'20rem', 
-                        textAlign: 'center',
-                        cursor: 'pointer'
-                    }}
-                    onClick={() => navigate('/book')}
-                >
-                    <p className="buttonText"  
-                    
-                    style={{ color: 'white', fontWeight: 'bold'}}
-                    >
-                        Click Here to Book an Appointment
-                    </p>
-                </div>
+                
             </div> 
             {
-                appointments ?  <AppointmentList appointments={appointments}/>  : 
+                isAppointmentFetched ?  <AppointmentList appointments={appointments}/>  : 
                 <p>Loading</p>
             }
             

@@ -35,13 +35,22 @@ MVARouter.get('/schedules/getSchedulesForStaff',(req,res)=>{
 
 MVARouter.post('/ride/bookRide',async(req,res)=>{   
   const {
-         user_id, 
+         user_id,  
+         staff_id, 
          staff_vehicle_id, 
-         ride_timestamp,
+         ride_timestamp, 
+         ride_end, 
          destination_clinic_id
         } = req.body    
   try{ 
-      const result = await rideDao.bookRide(user_id, staff_vehicle_id, ride_timestamp, destination_clinic_id);
+      
+      const result = await rideDao.bookRide(user_id ? user_id: req.user_id, {
+         staff_id, 
+         staff_vehicle_id,
+         ride_timestamp, 
+         ride_end, 
+         destination_clinic_id}); 
+
       if(result.status == "OK"){ 
            return res.status(200).send(result); 
       } 
@@ -83,7 +92,7 @@ MVARouter.get('/ride/getRides', async (req, res) => {
 
     // Handle return fields
     if (withStaffDetails === "true") {
-      returnFields.Staff.push("staff_id", "f_name", "l_name", "registration_date");
+      returnFields.Staff.push("staff_id", "staff_fname", "staff_lname", "registration_date");
     }
 
     if (withUserDetails === "true") {
@@ -112,7 +121,8 @@ MVARouter.put('/ride/updateRide',(req,res)=>{
 MVARouter.post('/ride/recommendRides',async(req,res)=>{ 
    let {
     appointment_start_time,
-    appointment_end_time,
+    appointment_end_time, 
+    mode, 
     userCoordinates, 
     destinationClinicId, 
     clinicCoordinates,
@@ -139,7 +149,8 @@ MVARouter.post('/ride/recommendRides',async(req,res)=>{
   //options include pagination. return the next page of schedules. each page has top_k ride schedules ranked accordingly
    const possible_schedules = await generatePossibleScheduleList(
       appointment_start_time,
-      appointment_end_time,
+      appointment_end_time, 
+      mode, 
       userCoordinates, 
       clinicCoordinates, 
       requiresWheelchair,
@@ -147,7 +158,7 @@ MVARouter.post('/ride/recommendRides',async(req,res)=>{
    )  
    
    if(!possible_schedules.length) return res.send({message:"No feasible schedules",recommended_schedules: []}); 
-   console.log(possible_schedules); 
+  
 
    try{
     const response = await fetch(`http://${process.env.ML_SERVICE_BASE_URL}/recommend`,

@@ -1,5 +1,5 @@
-const showFormattedDate = function(){ 
-      const now = new Date();
+const showFormattedDate = function(time){ 
+      const now = new Date(time);
       const formattedDate = now.toLocaleDateString(undefined, {
          weekday: 'long',
          year: 'numeric',
@@ -9,7 +9,7 @@ const showFormattedDate = function(){
 
       return formattedDate;
      } 
-const showFormattedTime = function(){  
+const showFormattedTimeNow = function(){  
       const now = new Date();
       const formattedTime = now.toLocaleTimeString(undefined, {
          hour: '2-digit',
@@ -19,6 +19,15 @@ const showFormattedTime = function(){
       return formattedTime; 
 } 
 
+const showFormattedTime  =  function(time){ 
+   const now = new Date(time);
+      const formattedTime = now.toLocaleTimeString(undefined, {
+         hour: '2-digit',
+         minute: '2-digit',
+         hour12: true // Set to false for 24-hour format
+      });
+      return formattedTime; 
+}
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -50,4 +59,4 @@ function getOrdinalSuffix(n) {
   }
 }
 
-export {formatDate,showFormattedDate,showFormattedTime} 
+export {formatDate,showFormattedDate,showFormattedTimeNow, showFormattedTime} 

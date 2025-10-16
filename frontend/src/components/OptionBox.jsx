@@ -7,12 +7,11 @@ function OptionBox({ style, IconComponent, text, onClick }) {
        >
            <IconComponent className="icon" />
            <p className="buttonText"
-             style={{
-                 wordWrap:"break-word"
-             }}
+             
            >{text}</p>
        </div>
    );
 } 
+
 
 export default OptionBox; 

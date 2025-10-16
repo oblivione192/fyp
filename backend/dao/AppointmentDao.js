@@ -154,7 +154,8 @@ export default class AppointmentDao {
         c.clinicId, 
         c.name AS clinicName, 
         a.AppointmentId,  
-        a.attended,
+        a.attended, 
+        a.visit_purpose,
         a.CONFIRMED as confirmed, 
         s.SlotDate as date,
         a.startTime,
@@ -190,7 +191,7 @@ export default class AppointmentDao {
   }
   async getLatestAppointmentFromUser(user_id){
     const query = ` 
-      SELECT a.*, s.slotDate AS date, s.startTime, s.endTime, d.DoctorId,c.clinicId, c.address, c.name AS clinicName
+      SELECT a.*, s.SlotId, s.slotDate AS date, s.startTime, s.endTime, d.DoctorId,c.clinicId, c.address, c.name AS clinicName
       FROM Appointment a
       JOIN Slot s ON a.SlotId = s.SlotId
       LEFT JOIN Doctor d ON a.DoctorId = d.DoctorId
@@ -204,7 +205,7 @@ export default class AppointmentDao {
   }
   async getAppointmentById(AppointmentId) {
     const query = `
-      SELECT a.*, s.slotDate, CONCAT(u.fname,u.mname,u.lname) AS patientName, d.DoctorId
+      SELECT a.*, s.SlotId, s.slotDate, u.user_id, CONCAT(u.fname,u.mname,u.lname) AS patientName, d.DoctorId
       FROM Appointment a
       JOIN Slot s ON a.SlotId = s.SlotId
       JOIN User u ON a.PatientId = u.user_id
@@ -218,7 +219,7 @@ export default class AppointmentDao {
 
   async listAppointmentsByPatient(PatientId) {
     const query = `
-      SELECT a.*, s.slotDate, s.startTime, s.endTime, d.DoctorId, c.name AS clinicName
+      SELECT a.*, s.SlotId,  s.slotDate, s.startTime, s.endTime, d.DoctorId, c.name AS clinicName
       FROM Appointment a
       JOIN Slot s ON a.SlotId = s.SlotId
       JOIN Doctor d ON a.DoctorId = d.DoctorId
@@ -234,7 +235,8 @@ export default class AppointmentDao {
       SELECT 
         a.*, 
         CONCAT(u.fname, u.mname, u.lname) AS patientName, 
-        d.DoctorId, 
+        d.DoctorId,  
+        s.SlotId,
         s.slotDate AS date
       FROM Appointment a
       JOIN User u ON a.PatientId = u.user_id 
@@ -268,6 +270,7 @@ export default class AppointmentDao {
     const result = await this.executeQuery(query, [AppointmentId]);
     return result.affectedRows > 0;
   }
+  
   async updateAppointment(AppointmentId,field,newValue){
     console.log('Executing update Appointment')
     console.log(field,newValue); 
@@ -282,13 +285,12 @@ export default class AppointmentDao {
     return result.affectedRows > 0;  
   } 
   
-  // async updateAppointment(AppointmentId, data = {}) {
-  //    if (!AppointmentId || Object.keys(data).length === 0) return false;
-
-  //     const query = await buildUpdateQuery('appointment',fields,'AppointmentId',AppointmentId,checkFieldExists)
-  //     const result = await this.executeQuery(query, values);
-  //     return result.affectedRows > 0;
-  // }
+  async updateAppointmentBulk(AppointmentId, data = {}) {
+      if (!AppointmentId || Object.keys(data).length === 0) return false; 
+      const {query, values} = await buildUpdateQuery('appointment',data,'AppointmentId',AppointmentId,checkFieldExists)
+      const result = await this.executeQuery(query, values);
+      return result.affectedRows > 0;
+  }
 
   // ✅ Reusable method for all DB queries
   executeQuery(query, params = []) {

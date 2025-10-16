@@ -2,6 +2,15 @@ export default class RideController{
        constructor(headers){
         this.Headers =  headers; 
        }
+       async getRides(options={}){ 
+              const searchParams = new URLSearchParams(options); 
+              const response =  await fetch(`/api/mva/ride/getRides?${searchParams.toString()}`,{
+                       method:'GET', 
+                       headers: this.Headers
+              }) 
+              const rides = await response.json(); 
+              return rides; 
+       } 
        
        async bookRide(rideData={}){  
               try{
@@ -17,8 +26,6 @@ export default class RideController{
               } 
 
               return "Error"; 
-
-
               } 
               catch(err){ 
                  return new Error("Failed to book ride: "+err.message);

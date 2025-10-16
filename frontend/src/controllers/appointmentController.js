@@ -3,7 +3,14 @@ class AppointmentController{
    constructor(headers){
      this.headers = headers;
    }  
-   
+   async mockConfirm(){
+     const response =  await fetch('/api/appointment/mockConfirmAppointment',{
+        method: 'PUT',  
+        headers: this.headers
+     })  
+     const data = await response.json(); 
+     console.log(data); 
+   }
    async addAppointment(data){
      const response = await fetch('/api/appointment/addAppointment',
       { 
@@ -30,8 +37,9 @@ class AppointmentController{
                }
             )
           }
-        )
-        return result; 
+        ) 
+        const response = await result.json(); 
+        return response; 
    }
    async cancelAppointment(AppointmentId){
    const result = await fetch("api/appointment/deleteAppointment",
@@ -40,8 +48,9 @@ class AppointmentController{
       headers: this.headers,
       body:JSON.stringify({AppointmentId: AppointmentId})
     }
-   ) 
-   return result; 
+   )  
+   const response = await result.json(); 
+   return response; 
    }
      async getAppointmentCount(options){   
           if(!localStorage.getItem("AppointmentCount") ||

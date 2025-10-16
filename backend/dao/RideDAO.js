@@ -15,15 +15,20 @@ export default class RideDAO {
 
   async bookRide(user_id, data = {}) {
     try {
-      const query = `
-        INSERT INTO ride (user_id, staff_vehicle_id, ride_timestamp, booking_date, destination_clinic_id)
-        VALUES (?, ?, ?, ?, ?)
+     const query = `
+        INSERT INTO ride (
+          user_id, staff_id, staff_vehicle_id,
+          ride_timestamp, ride_end, booking_date, destination_clinic_id
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
 
       const params = [
-        user_id,
+        user_id, 
+        data.staff_id, 
         data.staff_vehicle_id,
         data.ride_timestamp,
+        data.ride_end, 
         new Date(), // booking date is now
         data.destination_clinic_id,
       ];
@@ -63,7 +68,7 @@ async getRides(options = {}, returnFields = {}) {
     const entityMap = {
       Rides: { alias: "r", default: ["*"], table: "ride" },
       Staff: { alias: "s", default: ["staff_id", "staff_fname", "staff_lname"], table: "mvastaff" },
-      User: { alias: "u", default: ["user_id", "fname", "lname"], table: "user" },
+      User: { alias: "u", default: ["user_id", "fname", "lname", "mname"], table: "user" },
       Clinic: { alias: "c", default: ["ClinicId", "name"], table: "clinic" },
     };
 
@@ -126,8 +131,9 @@ async getRides(options = {}, returnFields = {}) {
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");
     }
-
-    console.log("Final Ride Query:", query, params);
+    
+    console.log("Final query: ", query)
+  
     return await this.executeQuery(query, params);
   } catch (err) {
     console.error("Error fetching rides:", err);
@@ -140,12 +146,11 @@ async getRides(options = {}, returnFields = {}) {
    */
   executeQuery(query, params = []) {
     return new Promise((resolve, reject) => {
-      this.db.query(query, params, function (err, results) {
+      this.db.query(query, params, function (err, results) { 
+        console.log(this.sql); 
         if (err) {
-          console.error("SQL Error:", err);
           return reject(err);
         }
-        console.log("Executed SQL:", this.sql);
         resolve(results);
       });
     });

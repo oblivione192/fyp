@@ -1,4 +1,5 @@
-import app from "./express.js";  
+import app from "./express.js";   
+import https from 'https'
 import userRouter from "./api/v1/auth.js";  
 import appointmentRouter from "./api/v1/appointments.js"; 
 import clinicRouter from "./api/v1/clinic.js"; 
@@ -6,8 +7,10 @@ import hrRouter from "./api/v1/healthRecord.js";
 import profileRouter from "./api/v1/profile.js"; 
 import MVARouter from "./api/v1/ride.js";
 import jwt from 'jsonwebtoken';
-import path from 'path';  
+import path from 'path';   
+import notificationRouter from "./api/v1/notifications.js";
 import medRouter from "./api/v1/medications.js";  
+import fs from 'fs'; 
 
 import adminRouter from "./api/v1/admin.js"; 
 import locationRouter from "./api/v1/location.js";
@@ -16,7 +19,12 @@ import {match,pathToRegexp} from 'path-to-regexp'
 const PORT = 3000;   
 const validRoutes = new Set();  
 const routeRegex = []; 
-app.use(cookieParser(process.env.COOKIE_SECRET))
+app.use(cookieParser(process.env.COOKIE_SECRET)) 
+
+const serverKey =  fs.readFileSync("./server.key"); 
+const serverCert = fs.readFileSync("./server.crt");  
+
+
 app.use((req, res, next) => {
   console.log(req.path);
   
@@ -81,7 +89,8 @@ app.use('/api/profile',profileRouter);
 app.use('/api/medication',medRouter);  
 app.use('/api/location',locationRouter); 
 app.use('/api/mva',MVARouter);  
-app.use('/auth/admin',adminRouter);   
+app.use('/auth/admin',adminRouter);    
+app.use('/api/notification',notificationRouter)
 
 
 const routerPrefixes = [
@@ -93,7 +102,8 @@ const routerPrefixes = [
   { router: medRouter, prefix: "/api/medication" },
   { router: adminRouter, prefix: "/auth/admin" },
   { router: locationRouter, prefix: "/api/location" }, 
-  { router: MVARouter, prefix: "/api/mva"}
+  { router: MVARouter, prefix: "/api/mva"},
+  { router: notificationRouter, prefix: "/api/notification"}
 ]; 
 
 routerPrefixes.forEach(({ router, prefix }) => {
@@ -107,10 +117,17 @@ routerPrefixes.forEach(({ router, prefix }) => {
 }); 
 
 console.log([...validRoutes]);  
-console.log([...routeRegex])
-app.listen(PORT, ()=>{
-    console.log(`Express server running at http://localhost:${PORT}/`)
+console.log([...routeRegex])   
+
+const server = https.createServer({
+      key: serverKey,
+      cert: serverCert
+    },app) 
+    server.listen(PORT, ()=>{
+    console.log(`Express server running at https://localhost:${PORT}/`)
 })  
+
+
 
 
 

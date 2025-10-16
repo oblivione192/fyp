@@ -46,5 +46,5 @@ export default function useAppointment(options) {
    
 }, [dispatch, options.option, isAppointmentFetched]);
 
-  return appointments;
+  return {isAppointmentFetched,appointments};
 }

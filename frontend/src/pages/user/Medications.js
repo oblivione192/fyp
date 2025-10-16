@@ -1,7 +1,7 @@
 import InformationCard from "../../components/InformationCard"
 import { useEffect,useState } from "react";  
-import {useSelector} from 'react-redux';
 import { Card } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import API from "../../controllers";  
 import useAppointment from "../../hooks/useAppointment";
 
@@ -17,58 +17,46 @@ function groupMedicationsByAppointment(medications) {
   }, {});
 } 
 
-export default function MedicationPage(){ 
-    const [groupedMedicals,setGroupedMedicals] = useState(null); 
-    const appointments = useAppointment(
-      {
-        role: 'user',
-        mode: 'BySelf'
-      }
-    );
-    
-     useEffect(()=>{ 
-            API.getController('medication').getPatientMedicals()
-            .then((meds)=>{
-               const groupedMedicals = groupMedicationsByAppointment(meds);  
-               setGroupedMedicals(groupedMedicals); 
-            })
-            .catch((err)=>{
-                 console.error(err.message); 
-            })
-     },[]) 
-     if(groupedMedicals === null){
-      return <p>Loading...</p>
-     }
-     return(
-       <InformationCard>  
-        
-        { 
-        
-           Object.entries(groupedMedicals).map(([appointmentId,medication])=>{  
-            const appointment = appointments.find((a) => a.AppointmentId ===  appointmentId);  
-            return medication.map((medication)=>{
-                return( 
-                <Card>  
-                  <Card.Title>{medication.diagnosis}</Card.Title>
-                  <div className="horizontalSection">
-                    <p>Medication: {medication.medication_name}</p>
-                  </div>
-                  <div className="horizontalSection">
-                    <p>Prescription: {medication.prescription}</p>
-                  </div>  
-                  <div className="horizontalSection">
-                    <p>Intake Frequency: {medication.frequency}</p>
-                  </div> 
-                  <div className="horizontalSection">
-                    <p>Take For: {medication.duration_days}</p>
-                  </div>
-              </Card> 
-            )
-           })
-            })
-            
-        }
-         
-       </InformationCard>
-     )
+export default function MedicationPage(){  
+  const navigate = useNavigate(); 
+  const [groupedMedicals, setGroupedMedicals] = useState(null); 
+  const { isAppointmentFetched, appointments } = useAppointment({ option: 'ByUser' });
+
+  useEffect(()=>{ 
+    API.getController('medication').getPatientMedicals()
+      .then((meds)=>{
+        const grouped = groupMedicationsByAppointment(meds);  
+        setGroupedMedicals(grouped); 
+      })
+      .catch((err)=> console.error(err.message));
+  },[])  
+
+  if (!groupedMedicals || !isAppointmentFetched) {
+    return <p>Loading...</p>;
+  }
+
+  return(
+    <>
+      <button onClick={()=>{navigate('/home')}}>Back to Home</button>
+      <InformationCard> 
+        <div style={{overflowY:'auto', maxHeight:'40rem', height:'40rem'}}>
+          {Object.entries(groupedMedicals).map(([appointmentId, meds]) => {  
+            const appointment = appointments.find(
+              (a) => String(a.AppointmentId) === String(appointmentId)
+            );
+
+            return meds.map((med) => (
+              <Card key={med.MedicationId || `${appointmentId}-${med.medication_name}`}>
+                <Card.Title>{med.diagnosis}</Card.Title>
+                <div className="horizontalSection"><p>Medication: {med.medication_name}</p></div>
+                <div className="horizontalSection"><p>Prescription: {med.prescription}</p></div>
+                <div className="horizontalSection"><p>Intake Frequency: {med.frequency}</p></div>
+                <div className="horizontalSection"><p>Take For: {med.duration_days}</p></div>
+              </Card>
+            ));
+          })}
+        </div>
+      </InformationCard> 
+    </>
+  );
 }

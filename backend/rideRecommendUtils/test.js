@@ -7,9 +7,10 @@ const response = await fetch("http://localhost:3000/api/mva/ride/recommendRides"
           }, 
           body:JSON.stringify(
             {
-            "appointment_start_time": "2025-09-12T09:00:00Z", 
-            "preferred_language":"English",
-            "appointment_end_time": "2025-09-12T10:00:00Z",
+            "appointment_start_time": new Date().getTime() + 3600*1000, 
+            "preferredLanguage":"English", 
+            "mode":"Pessimistic", 
+            "appointment_end_time": new Date().getTime() + 10800 * 1000 ,
             "userCoordinates": { "lat": 4.332495, "lng": 101.1478746 },
             "clinicCoordinates": { "lat": 4.3293692, "lng": 101.1481781 },
             "requiresWheelchair": true,
@@ -20,5 +21,5 @@ const response = await fetch("http://localhost:3000/api/mva/ride/recommendRides"
 )   
 
 const recommendedRides = await response.text(); 
-console.log(recommendedRides); 
+console.table(recommendedRides);
 

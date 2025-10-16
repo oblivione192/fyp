@@ -9,7 +9,7 @@ import reportWebVitals from './reportWebVitals';
 import API from './controllers'; 
 import { getUserLocation } from './reducers/locationReducer';
 
-
+import { getMessaging } from 'firebase/messaging';
 let currentAuthState = {
   isLoggedIn: store.getState().Auth.isLoggedIn,
   authToken: store.getState().Auth.authToken,
@@ -32,7 +32,7 @@ store.subscribe(()=>{
        switch(next.userRole){
           case "user":  
             document.body.style.backgroundImage='none'; 
-            document.body.style.backgroundColor="#bbf7ab";
+            document.body.style.backgroundColor="#8bbdefff";
             break;
           case "admin":  
              document.body.style.backgroundImage='none';
@@ -61,12 +61,13 @@ store.subscribe(()=>{
     };  
   
     if (next.isLoggedIn && !API.getHeaders()) { 
-      console.log("Setting up API"); 
-      API.setHeaders({
+      console.log("Setting up API");     
+      const headers = {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${next.authToken}`,
-      }); 
-  
+      }
+      API.setHeaders(headers);  
+     
     } else { 
       console.log("Clearing headers"); 
       API.setHeaders(null); 
@@ -77,14 +78,27 @@ store.subscribe(()=>{
 
 store.dispatch(getUserLocation())
 
-
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./serviceWorker.js")
+      .then((reg) => console.log("Service Worker registered:", reg.scope))
+      .catch((err) => console.error("Service Worker registration failed:", err));
+  });
+}
+else{
+  console.log("Service worker not in navigator")
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root')); 
-root.render( 
- <Provider store={store}> 
-      <App/> 
-      <GlobalModals/>
- </Provider>
+root.render(  
+ 
+    <Provider store={store}>  
+           <App/> 
+           <GlobalModals/>
+    </Provider>
+
+ 
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -6,7 +6,7 @@ function InformationCard({children}) {
   <Container style={{padding: '3px',overflowY:'auto',overflowX:'hidden'}}>
       <Row className="justify-content-center">
         <Col xs={12} sm={10} md={8} lg={6}>
-          <Card className="mb-3" style={{  color: 'black' }}>
+          <Card className="mb-3 sm-8" style={{  color: 'black' }}>
             {children}
           </Card>
         </Col>

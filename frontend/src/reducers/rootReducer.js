@@ -6,7 +6,7 @@ import profileReducer from './profileReducer.js';
 import enrollmentReducer from './enrollmentReducer.js'; 
 import slotsReducer from './slotsReducer.js'; 
 import locationReducer from './locationReducer.js'
-
+import notificationReducer from './notificationReducer.js'
 
 const appReducer = combineReducers({
   Auth: authReducer,
@@ -15,7 +15,8 @@ const appReducer = combineReducers({
   Profile: profileReducer,
   Enrollment: enrollmentReducer,
   Slot: slotsReducer,
-  Location: locationReducer
+  Location: locationReducer,
+  Notification: notificationReducer
 });
 
 const rootReducer = (state, action) => {

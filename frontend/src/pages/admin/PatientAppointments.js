@@ -13,6 +13,58 @@ import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux"; 
 import { UpdateAppointment } from "../../reducers/appointmentReducer";
 import {initEnrollment} from "../../reducers/enrollmentReducer";
+function AppointmentTableDisplay({ appointments }) {
+  if (!appointments || appointments.length === 0) return null;
+
+  return (
+    <Table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Slot</th>
+          <th>Doctor</th>
+          <th>Status</th>
+          <th>Attendance</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {appointments.length > 0 && appointments.map((appointment, index) => (
+          <tr key={index}>
+            <td>{appointment.patient_name}</td>
+            <td>{formatDate(appointment.date.split("T")[0])}</td>
+            <td>
+              {appointment.startTime.substring(0, 5) +
+                " - " +
+                appointment.endTime.substring(0, 5)}
+            </td>
+            <td>{appointment.doctorName}</td>
+            <td>{appointment.confirmed ? "Confirmed" : "Pending"}</td>
+            <td>{appointment.attended ? "Attended" : "Absent"}</td>
+            <td>
+              <Actions appointmentId={appointment.AppointmentId} key={index}>
+                <option value="postpone">Postpone</option>
+                <option value="Mock Confirm">Mock Confirm</option>
+                {!appointment.confirmed &&
+                new Date(appointment.date) > new Date() ? (
+                  <option value="confirm">Confirm</option>
+                ) : null}
+                {appointment.confirmed && !appointment.attended ? (
+                  <option value="attended">Attended</option>
+                ) : null}
+              </Actions>
+            </td>
+          </tr>
+        ))}
+        {
+          appointments.length === 0 &&
+          <p>No Appointments. You can add more slots.</p>
+        }
+      </tbody>
+    </Table>
+  );
+}
 function ConfirmForm({ appointmentId, show, onClose }) {  
   const dispatch= useDispatch();   
   
@@ -130,6 +182,10 @@ function Actions({ appointmentId, children }) {
   return (
     <>
       <FormSelect onChange={(e) => {
+        if(e.target.value === 'Mock Confirm'){ 
+            API.getController('Appointment') 
+            .mockConfirm() 
+        }
         if (e.target.value === 'confirm') {
           setShowConfirmForm(true);
         } 
@@ -152,19 +208,22 @@ function Actions({ appointmentId, children }) {
 export default function PatientAppointments(){  
   const [filter, setFilter] = useState({});  
   const [searchCriteria, setSearchCriteria] = useState([]);    
-  const appointments = useAppointment(
+  const {isAppointmentFetched,appointments} = useAppointment(
         {
             option: 'ByClinic',
         }
     )    
-  
+ 
   const defaultFilteredAppointments = useMemo(() => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toISOString().split('T')[0]; 
+     if(!isAppointmentFetched){ 
+      return null; 
+    }
     return appointments.filter(appointment => {
       const appointmentDateStr = new Date(appointment.date).toISOString().split('T')[0];
       return appointmentDateStr === todayStr;
     });
-}, [appointments]); 
+}, [appointments, isAppointmentFetched]); 
 
 
 
@@ -240,68 +299,13 @@ else{
             </div>
             
          <div style={{overflowY:'auto',maxHeight:'100vh'}}>  
-          {filteredAppointments.length > 0 && 
- 
-            <Table>
-                  <thead>
-                        <tr>
-                           <th>Name</th> 
-                           <th>Date</th>
-                           <th>Slot</th>  
-                           <th>Doctor</th>  
-                           <th>Status</th> 
-                           <th>Attendance</th>
-                           <th>Action</th> 
-                          
-                        </tr>
-               </thead>  
-               <tbody>
-                {
-                     filteredAppointments 
-                     .map((appointment,index)=>{     
-                      
-                     return( 
-                       <tr key={index}>
-                         <td>{appointment.patient_name}</td> 
-                         <td>{formatDate(appointment.date.split('T')[0])}</td> 
-                         <td>{appointment.startTime.substring(0,5) + " - "+appointment.endTime.substring(0,5)}</td>
-                         <td>{appointment.doctorName}</td>   
-                         <td>{
-                              appointment.confirmed ? "Confirmed" :   
-                              "Pending"
-                             }
-                         </td> 
-                         <td>{appointment.attended ? "Attended" : "Absent"} </td>
-                         <td>
-                           <Actions appointmentId={appointment.AppointmentId} key={index}>
-                                <option value="postpone">Postpone</option>  
-                             {
-                            !appointment.confirmed  && (new Date(appointment.date) > new Date())
-                              ? <option value="confirm">Confirm</option>
-                              : null
-                          }
-                          {
-                            appointment.confirmed && !appointment.attended
-                              ? <option value="attended">Attended</option>
-                              : null
-                          }
-                           </Actions>
-                        </td> 
-                       </tr>  
-                  ) 
-                  })
-                 }
           
-               </tbody>
-            </Table> 
-
-
+          {(isAppointmentFetched) ?
+              <AppointmentTableDisplay appointments={filteredAppointments}/> : 
+              <p>Loading...</p>
            }  
            
-           {!filteredAppointments.length && <NoAppointment/>}
-            
-           
-          
+       
          </div>
         
         </Col> 

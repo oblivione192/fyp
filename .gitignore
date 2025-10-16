@@ -6,7 +6,13 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
-
+#server key and cert
+server.crt
+server.key
+#firebase admin details 
+fypproject-939a9-firebase-adminsdk-fbsvc-500b6725aa.json
+#output builds 
+/build 
 #pycache 
 __pycache__/
 *.py[cod]   
@@ -44,7 +50,8 @@ bower_components
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
-
+backend/build 
+backend/build/index.html
 # Dependency directories
 node_modules/
 jspm_packages/

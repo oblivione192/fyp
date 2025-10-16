@@ -11,7 +11,7 @@ import { initHealthRecord, updateHealthRecord,clear } from "../../reducers/healt
 import {useSelector,useDispatch} from 'react-redux'; 
 import API from "../../controllers/index.js";
 import { Form,FormControl, FormGroup, FormLabel} from "react-bootstrap";  
-
+import useWindowSize from "../../hooks/useWindowSize.js";
 
 function HealthDisplay(){
   
@@ -20,6 +20,17 @@ function HealthDisplay(){
     const isInit = useSelector(state=>state.Health.init);  
     const haveExistingRecord = useSelector(state=>state.Health.haveExistingRecord)
     const dispatch = useDispatch();  
+    
+    const accessorToHeaders  = { 
+      RecordId:2, 
+      PatientId:1,
+      blood_type:"Blood Type",
+      diagnosis:"Diagnosis",
+      notes:"Notes",
+      height:"Height",
+      weight:"Weight",
+      bmi:"BMI"
+    } 
 
     useEffect(()=>{  
       console.log(isInit); 
@@ -39,7 +50,7 @@ function HealthDisplay(){
     },[dispatch,isInit]) 
     console.log(Object.entries(healthRecord));
     return(
-      <div>
+      <div id="healthDisplay">
          <InformationCard>
             <Card.Title>Your Health Record</Card.Title>
             <Card.Subtitle
@@ -54,25 +65,30 @@ function HealthDisplay(){
             <Card.Body>
                {
                  healthRecord!==null ? 
-                 <div id="healthRecord"> 
-                   <p><strong>Name:</strong> {profile.fname + " " + profile.mname + " " + profile.lname}</p>  
-                   <p><strong>Age:</strong>  {profile.age}</p> 
-                   {
-                
-                  Object.entries(healthRecord)
-                  .filter(([key]) => key !== 'recorded_at' && key !== 'PatientId' && key !== 'RecordId')
-                  .map(([key, value]) => (
-                    <React.Fragment key={key}> 
-                     <div style={{display:'flex'}}> 
-                          <strong>{key} :</strong>
-                          <p>{value}</p>
-                     </div>
-                    
-                    </React.Fragment>
-                  ))
-
-                   }
-                 </div> :  
+                 <div id="healthRecord">
+                  <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "20rem" }}>
+                    <tbody>
+                      <tr>
+                        <td><strong>Name:</strong></td>
+                        <td>{profile.fname + " " + profile.mname + " " + profile.lname}</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Age:</strong></td>
+                        <td>{profile.age}</td>
+                      </tr>
+                      {
+                        Object.entries(healthRecord)
+                          .filter(([key]) => key !== 'recorded_at' && key !== 'PatientId' && key !== 'RecordId')
+                          .map(([key, value]) => (
+                            <tr key={key}>
+                              <td><strong>{accessorToHeaders[key]}:</strong></td>
+                              <td>{value}</td>
+                            </tr>
+                          ))
+                      }
+                    </tbody>
+                  </table>
+                </div> :  
 
                  <p>Loading</p>
                }
@@ -85,7 +101,10 @@ function HealthForm(){
     const healthRecord = useSelector(state => state.Health.healthRecord);   
     const hasExistingRecords = useSelector(state=>state.Health.haveExistingRecord);  
     const dispatch = useDispatch();   
-    const [changes, setChanges] = useState({}); 
+    const [changes, setChanges] = useState({});  
+    
+
+        
     const submitHealthRecord = function(event){  
         event.preventDefault(); 
         const formData = new FormData(event.target); 
@@ -196,7 +215,17 @@ function HealthForm(){
 }
 export default function HealthRecord(){   
     const navigate = useNavigate();  
-    const [tab,setTab] = useState('Display'); 
+    const [tab,setTab] = useState('Display');  
+    const width = useWindowSize();
+    let boxWidth = "30%";
+    let boxHeight = "120px";
+    if (width < 768) {
+          boxWidth = "80%";
+          boxHeight = "80px";
+    } else if (width < 1200) {
+          boxWidth = "45%";
+          boxHeight = "100px";
+    }
     return( 
       <>   
            
@@ -214,18 +243,27 @@ export default function HealthRecord(){
               style={{justifyContent:'center'}} 
               > 
                 <OptionBox 
-                style={{
-                  backgroundColor:"red",
-                  color:"white"
-                }} 
+                  style={{
+                    backgroundColor:"red",
+                    color:"white",
+                    width: boxWidth,
+                    height:boxHeight,
+                    fontSize:width*0.05 ,
+                    padding: '1.5px'
+                  }} 
                 onClick={()=>{setTab('Display')}}
                 IconComponent={FaHeartbeat} 
                 text="View Health Info"
                 />
-              <OptionBox  
+              <OptionBox   
+                
                 style={{
                   backgroundColor: "green",
-                  color:"white"
+                  color:"white",
+                  width:boxWidth,
+                  height:boxHeight,
+                  fontSize:width*0.05,
+                   padding: '1.5px'
                 }} 
                 onClick={()=>{setTab('Form')}}
                 IconComponent={FaClipboard}

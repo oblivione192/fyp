@@ -27,10 +27,10 @@ rand_languages = np.random.choice(languages, n_samples)
 test_data = pd.DataFrame({
     'language': rand_languages,   # random language (may mismatch staff)
     'preferred_language': rand_languages, 
-    'distance_patient_clinic': np.random.uniform(1, 15, n_samples),  # km 
-    'distance_staff_patient': np.random.uniform(1, 15, n_samples),   # km
-    'time_margin': np.random.uniform(-30, 0, n_samples),            # minutes (neg = early)
-    'workload': np.random.randint(1, 5, n_samples),                 # trips today
+    'distance_patient_clinic': np.random.uniform(25, 30, n_samples),  # km 
+    'distance_staff_patient': np.random.uniform(10, 25, n_samples),   # km
+    'time_margin': np.random.uniform(5, 30, n_samples),            # minutes (neg = early)
+    'workload': np.random.randint(5, 8, n_samples),                 # trips today
 })
 
 

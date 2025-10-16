@@ -8,20 +8,25 @@ import BookAppointment from './pages/user/BookAppointment.js';
 import HealthRecord from './pages/user/HealthRecord.js'; 
 import PatientProfile from './pages/user/PatientProfile.js'; 
 import MedicationPage from './pages/user/Medications.js';  
-import SlotManagement from './pages/admin/SlotManagement';
-import Login from './Login.js';
-import Register from './Register.js'; 
+import SlotManagement from './pages/admin/SlotManagement'; 
+
+import Login from './Login.js'; 
+import { getMessaging, onMessage } from 'firebase/messaging';  
+import app from './firebaseconfig/firebase-config.js';
+import Register from './Register.js';
 import RidesPage from './pages/user/MVARides.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Entrance from './Entrance.js';
-import PatientAppointments from './pages/admin/PatientAppointments.js';
+import Entrance from './Entrance.js'; 
+import PatientAppointments from './pages/admin/PatientAppointments.js'; 
+import { useContext, useCallback} from 'react';
 import { useNavigate, Outlet } from 'react-router-dom'; 
 import { useSelector,useDispatch} from 'react-redux'; 
 import { expireSession } from './reducers/authReducer.js';
 import { setLoggedIn } from './reducers/authReducer.js';   
-import {AdminLogin} from './pages/admin';  
-import AdminLayout from './pages/admin/AdminLayout.js';
-import PrivateRoute from './components/PrivateRoute.jsx';
+import {AdminLogin} from './pages/admin';     
+import AdminLayout from './pages/admin/AdminLayout.js'; 
+import PrivateRoute from './components/PrivateRoute.jsx'; 
+
 
 
 function Layout() {
@@ -29,11 +34,11 @@ function Layout() {
   const dispatch = useDispatch();   
   const isLoggedIn = useSelector(state => state.Auth.isLoggedIn);
   const authToken = useSelector(state => state.Auth.authToken);  
-  const userRole = useSelector(state => state.Auth.userRole  ); 
-  const location = useLocation();
+  const userRole = useSelector(state => state.Auth.userRole);  
+
+  
 
   useEffect(() => {
- 
     if (localStorage.getItem("token")) {
       fetch('/auth/user/checkTokenExpiry', {
         method: 'POST',
@@ -41,7 +46,8 @@ function Layout() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ token: localStorage.getItem('token') })
-      })
+        
+      }) 
       .then(response => response.json())
       .then(result => {
         if (result.status === 'Valid') {
