@@ -10,7 +10,8 @@ locationRouter.get("/getLocationName",async(req,res)=>{
             const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}`+
             `&key=${process.env.GOOGLE_MAP_API_KEY}`); 
             const data = await response.json(); 
-            if(data.status !== "OK"){
+            if(data.status !== "OK"){        
+                console.log(data);   
                 return res.status(500).json({error:"Failed to fetch location name"});
             }       
 

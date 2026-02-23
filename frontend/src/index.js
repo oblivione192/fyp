@@ -9,7 +9,6 @@ import reportWebVitals from './reportWebVitals';
 import API from './controllers'; 
 import { getUserLocation } from './reducers/locationReducer';
 
-import { getMessaging } from 'firebase/messaging';
 let currentAuthState = {
   isLoggedIn: store.getState().Auth.isLoggedIn,
   authToken: store.getState().Auth.authToken,

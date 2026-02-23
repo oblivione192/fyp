@@ -11,5 +11,6 @@ export default async function calculateEstimatedTime(lat1,lon1,lat2,lon2){
     
     const result = await response.json();  
     if(result.status!="OK") return {error:"Something went wrong"}  
+    console.log(result); 
     return  result.rows[0].elements[0].duration.value
 }

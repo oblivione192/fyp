@@ -31,7 +31,11 @@ class SchedulesRequest(BaseModel):
 # Initialize FastAPI
 # -------------------------------
 app = FastAPI()
-
+@app.get("/ping")
+def ping():
+    return {"status": "ok"}   
+      
+      
 @app.post("/recommend")
 def recommend_schedules(req: SchedulesRequest):
     # Keep original objects

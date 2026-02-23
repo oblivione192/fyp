@@ -40,11 +40,11 @@ function getRandomInt(min, max) {
 }
 
 const staff_current_coordinates = {
-    1: { lat: 4.3215832, lng: 101.1367282 },
-    2: { lat: 4.2832227, lng: 101.154623 },
-    3: { lat: 4.3283705, lng: 101.1358976 }, 
-    4: { lat: 4.1369862, lng: 101.2409724 }, 
-    5: { lat: 5.4857934, lng: 101.0090016 }
+    1: { lat: 3.0215832, lng: 101.604402 },
+    2: { lat: 3.0832227, lng: 101.594402},
+    3: { lat: 4.3283705, lng: 101.614402 }, 
+    4: { lat: 3.1369862, lng: 101.594402 }, 
+    5: { lat: 2.9957934, lng: 101.574402 }
 };
 
 const staff_available_time = { 
@@ -55,16 +55,14 @@ function generateStaffAvailabilityTime(start_time, end_time) {
   const startMs = new Date(start_time).getTime();
   const endMs = new Date(end_time).getTime();
 
-  for (let i = 0; i < 5; i++) {
+  for (const staffId of Object.keys(staff_current_coordinates)) {
+    const startOffset = getRandomInt(-30, -25) * 60000;
+    const endOffset = getRandomInt(-10, 200) * 60000;
 
-    const startOffset = getRandomInt(-85, -30) * 60000;
-    const endOffset = getRandomInt(-10, 180) * 60000;
-
-    staff_available_time[i] = {
+    staff_available_time[staffId] = {
       start_availability: startMs + startOffset,
       end_availability: endMs + endOffset
     };
-
   }
 }
 
@@ -98,7 +96,7 @@ async function generatePossibleScheduleList(
 
     //hardcoded for simulation purposes. 
     generateStaffAvailabilityTime(appointment_start_time,appointment_end_time);  
-
+    
     const possible_schedules = [];     
      //conversion from long form to short form.
     if(userCoordinates.latitude && userCoordinates.longitude){ 
@@ -217,18 +215,25 @@ async function generatePossibleScheduleList(
          
         let vehicle = null; 
         let vehicles = await vehicleDao.getVehicleByStaff(staffId);  
-        vehicle = vehicles[0]
+        vehicle = vehicles[0]    
+
+
+         if(!vehicle){
+            console.log("No vehicle assigned to staff")
+            continue; 
+         }  
+
+         
         //wheelchair vehicle check 
-        if(requiresWheelchair){ 
-              console.log(vehicle);
+        if(requiresWheelchair && !vehicle){ 
               if(!vehicle.has_wheelchair){   
                      console.log("No wheelchair")
                      continue;   
               } 
-         }   
+         }     
 
-         
 
+        
         
         //get staff preferred language  
         const languages = await staffDao.getStaffPreferredLanguages(staffId); 

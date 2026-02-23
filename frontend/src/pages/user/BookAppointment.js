@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { IoMdArrowBack } from "react-icons/io";
 import { AiFillHome } from "react-icons/ai";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, Row, Col, Container, FormSelect } from 'react-bootstrap';  
 
 import ServiceStep from '../../components/ServiceStep.jsx'; 
 import ClinicStep from '../../components/ClinicStep.jsx'; 
@@ -14,7 +13,6 @@ import FinishStep from '../../components/FinishStep.jsx';
 import API from '../../controllers/';
 import { AddAppointment } from '../../reducers/appointmentReducer.js';
 import Event from '../../util/eventBus.js';
-;
 
 // -------------------- Utility Components --------------------
 

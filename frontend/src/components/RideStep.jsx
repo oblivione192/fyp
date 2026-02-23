@@ -65,7 +65,7 @@ function RideCard({ ride, onBook }) {
         )}
         {
           ride.time_margin > 0 && (
-           <p>Waiting Time: {waitingHrs} h {waitingMins} m</p> 
+           <p>Late By:  {waitingHrs} h {waitingMins} m</p> 
           )
         }
         <p>Vehicle Plate Number: {ride.plate_number}</p>
@@ -73,15 +73,20 @@ function RideCard({ ride, onBook }) {
       </Card.Body>
       <button
         style={{ backgroundColor: 'green' }}
-        onClick={() => { 
-           Event.emit('OnWarning',{
-              title: "Late Appointment",
-              message: "Do not worry our team will make sure you get there as soon as possible. Do you want to book the appointment?",
-              positiveHandler: ()=>{onBook(ride)},
-              negativeHandler: ()=>{
-                //do nothing}
-        }})
-           onBook(ride)
+        onClick={() => {   
+           if(ride.time_margin > 0){
+              Event.emit('OnWarning',{
+                  title: "Late Appointment",
+                  message: "Do not worry our team will make sure you get there as soon as possible. Do you want to book the appointment?",
+                  positiveHandler: ()=>{onBook(ride)},
+                  negativeHandler: ()=>{
+                    //do nothing} 
+            }}) 
+          }  
+          else 
+          { 
+             onBook(ride) 
+          }
         }
           
         }
