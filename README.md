@@ -79,7 +79,7 @@ Optimizing the Decision Tree ensures predictions are performed in the shortest p
 
 ![Demo Screenshot 1](Screenshots/0_Login_Menu.jpg)
 
-![Demo Screenshot 2](Screenshots/1_Main_Menu.png)   
+![Demo Screenshot 2](Screenshots/1_Main_Menu.jpg)   
 
 ![Demo Screenshot 3](Screenshots/2_Appoinments_Page.jpg)    
 
