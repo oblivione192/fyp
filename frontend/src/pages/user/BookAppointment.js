@@ -97,12 +97,13 @@ function AppointmentProcedure({ step, setStep }) {
         setStep(4);
       }
     } catch (err) {
+      console.error("Error booking appointment: ", err);
       Event.emit('OnFailure', 
                         { 
                           title:"Failure", 
                           message:err.message 
                         }
-                  )
+                )
     } finally {
       setShowConfirm(false);
     }
@@ -187,13 +188,13 @@ export default function BookAppointment() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <IoMdArrowBack
-            style={{ color: "white", width: "42px", height: "42px" }}
+            style={{ color: "purple", width: "42px", height: "42px" }}
             onClick={() => step > 1 ? setStep(step - 1) : navigate('/appointment')}
           />
-          <span style={{ color: "white", fontSize: "18px" }}>Previous Step</span>
+          <span style={{ color: "purple", fontSize: "18px" }}>Previous Step</span>
         </div>
         <AiFillHome
-          style={{ color: "white", width: "32px", height: "32px" }}
+          style={{ color: "purple", width: "32px", height: "32px" }}
           onClick={() => navigate('/home')}
         />
       </div>

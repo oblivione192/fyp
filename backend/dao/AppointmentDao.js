@@ -69,25 +69,30 @@ export default class AppointmentDao {
   async getUserUpcomingAppointments(PatientId,page,itemsPerPage){
     const offset =  itemsPerPage * (page - 1); 
     const query = 
-    `
-    SELECT 
+    ` 
+      SELECT 
           CONCAT(u.fname, ' ', u.mname, ' ', u.lname) AS patient_name,
           c.address,
-          c.name AS clinicName, 
+          c.name AS clinicName,
           a.AppointmentId,
-          s.SlotDate as date, 
+          a.visit_purpose,
+          s.SlotDate AS date,
           a.startTime,
           a.endTime,
           CONCAT('Dr. ', d.fname) AS doctorName
-        FROM Clinic c
-        JOIN Slot s ON s.ClinicId = c.ClinicId
-        JOIN Appointment a ON a.SlotId = s.SlotId
-        JOIN User u ON a.PatientId = u.user_id
-        JOIN Doctor d ON a.DoctorId = d.DoctorId
-        WHERE u.user_id = ? AND  a.date > CURDATE() AND a.CONFIRMED = 1
-        LIMIT ?
-        OFFSET ?
-    ` 
+      FROM Clinic c
+      JOIN Slot s ON s.ClinicId = c.ClinicId
+      JOIN Appointment a ON a.SlotId = s.SlotId
+      JOIN User u ON a.PatientId = u.user_id
+      JOIN Doctor d ON a.DoctorId = d.DoctorId
+      WHERE 
+          u.user_id = ?
+          AND a.CONFIRMED = 1
+          AND TIMESTAMP(s.SlotDate, a.startTime) > NOW()
+      ORDER BY TIMESTAMP(s.SlotDate, a.startTime) ASC
+      LIMIT ?
+      OFFSET ?
+    `
     return this.executeQuery(query,[PatientId,itemsPerPage,offset]); 
   }
   async getUserAppointmentHistory(PatientId,page,itemsPerPage){ 
@@ -191,7 +196,13 @@ export default class AppointmentDao {
   }
   async getLatestAppointmentFromUser(user_id){
     const query = ` 
-      SELECT a.*, s.SlotId, s.slotDate AS date, s.startTime, s.endTime, d.DoctorId,c.clinicId, c.address, c.name AS clinicName
+      SELECT 
+      a.AppointmentId,  
+      a.attended,
+      a.CONFIRMED as confirmed,  
+      a.startTime,
+      a.endTime,
+      s.SlotId, s.slotDate AS date, s.startTime, s.endTime, d.DoctorId,c.clinicId, c.address, c.name AS clinicName
       FROM Appointment a
       JOIN Slot s ON a.SlotId = s.SlotId
       LEFT JOIN Doctor d ON a.DoctorId = d.DoctorId
@@ -205,12 +216,30 @@ export default class AppointmentDao {
   }
   async getAppointmentById(AppointmentId) {
     const query = `
-      SELECT a.*, s.SlotId, s.slotDate, u.user_id, CONCAT(u.fname,u.mname,u.lname) AS patientName, d.DoctorId
-      FROM Appointment a
-      JOIN Slot s ON a.SlotId = s.SlotId
-      JOIN User u ON a.PatientId = u.user_id
-      JOIN Doctor d ON a.DoctorId = d.DoctorId
-      WHERE a.AppointmentId = ?
+     SELECT 
+      a.AppointmentId,  
+      a.attended, 
+      a.visit_purpose,
+      a.CONFIRMED as confirmed, 
+      s.SlotDate as date,
+      a.startTime,
+      a.endTime,
+       s.SlotId, 
+       s.slotDate, 
+       u.user_id,
+       CONCAT(u.fname,' ',u.mname,' ',u.lname) AS patientName,
+       d.DoctorId,
+       CONCAT('Dr. ', d.fname) AS doctorName,
+       c.name AS clinicName,
+       c.address,
+       c.clinicId,
+       s.slotDate AS date
+        FROM Appointment a
+        LEFT JOIN Slot s ON a.SlotId = s.SlotId
+        LEFT JOIN Clinic c ON c.ClinicId = s.ClinicId
+        LEFT JOIN User u ON a.PatientId = u.user_id
+        LEFT JOIN Doctor d ON a.DoctorId = d.DoctorId
+        WHERE a.AppointmentId = ?;
     `;
 
     const result = await this.executeQuery(query, [AppointmentId]);

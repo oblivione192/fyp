@@ -21,7 +21,8 @@ export default function ClinicStep({ appointmentRef, onNext }) {
         <Card key={clinic.ClinicId}>
           <Card.Body>
             <Card.Title>{clinic.name}</Card.Title>
-            <Card.Text>{clinic.address}</Card.Text>
+            <Card.Text>{clinic.address}</Card.Text>   
+            <Card.Text>Drive Distance: {clinic.distance ? (clinic.distance / 1000).toFixed(2) + " km" : "N/A"}</Card.Text>
             <button
               onClick={() => {
                 appointmentRef.current.ClinicId = clinic.ClinicId;

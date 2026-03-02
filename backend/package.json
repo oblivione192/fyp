@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test:server": "nodemon -r dotenv/config index.js dotenv_config_path=./.env.development dotenv_config_debug=true",
+    "production:server": "nodemon -r dotenv/config index.js dotenv_config_path=./.env.production",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "author": "",
@@ -25,7 +26,8 @@
     "path-to-regexp": "^8.2.0",
     "react-bootstrap": "^2.10.10",
     "react-icons": "^5.5.0",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
     "@reduxjs/toolkit": "^2.8.1"

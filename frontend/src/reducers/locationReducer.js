@@ -45,12 +45,13 @@ export const getUserLocation = () => {
 
     };
 
-    const errorHandler = (err) => {
+    const errorHandler = (err) => {      
+
       dispatch(setError(err.message)); 
       console.log(err.message); 
       return; 
     };
 
-    navigator.geolocation.watchPosition(successHandler, errorHandler);
+    navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
   };
 };

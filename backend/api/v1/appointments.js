@@ -276,7 +276,8 @@ appointmentRouter.get("/confirmedAppointments",async(req,res)=>{
     const appointments = await appDao.getUserUpcomingAppointments(req.user_id,page,5); 
     return res.send(appointments); 
    }
-   catch{
+   catch(err){   
+    console.error(err); 
     return res.status(500).send({message:"Internal server error"}); 
    }
 })
@@ -357,7 +358,7 @@ appointmentRouter.get("/getAppointment", async (req, res) => {
     user_id: queryUserId,
   } = req.query;
 
-  console.log(req.query);
+
 
   try {
     if (!option) {
@@ -406,7 +407,7 @@ appointmentRouter.get("/getAppointment", async (req, res) => {
         const appCount = await appDao.getClinicAppointmentCount(clinicId);  
         let Pages = Math.ceil(appCount / 5); 
         if(page > 0 && page <= Pages){
-          appointments = await appDao.getClinicAppointments(user_id,page,5); 
+          appointments = await appDao.getClinicAppointments(clinicId,page,5);
           return res.send(appointments); 
         } 
         else{
@@ -447,8 +448,9 @@ appointmentRouter.get("/getAppointment", async (req, res) => {
             message: "AppointmentId is required",
           });
         }
-
-        appointments = await appDao.getAppointmentById(AppointmentId);
+        
+        appointments = await appDao.getAppointmentById(AppointmentId);  
+        console.log(appointments);
         return res.send(appointments);
 
       case "ByClinicDate":

@@ -5,7 +5,8 @@ const initialState = {
   currentPage: 1,  
   totalPages: 0,
   pageSize: 5,
-  fetched: false,
+  fetched: false,  
+  nextAppointment: undefined,  
   totalAppointments: 0,
 };
 //Adds all the appointments.
@@ -52,12 +53,18 @@ const AppointmentsReducer = createSlice({
       },
     updateCurrentPage: (state, action) => {
       state.currentPage = action.payload;
-    },
+    },    
+
+    setNextAppointment: (state, action) =>{ 
+       state.nextAppointment = action.payload; 
+    }, 
+    
     clearAll: (state) => {
       state.appointments = [];
       state.totalAppointments = 0;
       state.currentPage = 1;
       state.totalPages = 1;
+      state.nextAppointment = null;
     },
    
   },
@@ -72,7 +79,8 @@ export const {
   RemoveAppointment,
   UpdateAppointment,
   updateCurrentPage,
-  setChangesRead, 
+  setChangesRead,  
+  setNextAppointment,
   clearAll,
 } = AppointmentsReducer.actions;
 

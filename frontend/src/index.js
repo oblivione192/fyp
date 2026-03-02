@@ -31,11 +31,11 @@ store.subscribe(()=>{
        switch(next.userRole){
           case "user":  
             document.body.style.backgroundImage='none'; 
-            document.body.style.backgroundColor="#8bbdefff";
+            document.body.style.backgroundColor="#7faccf";
             break;
           case "admin":  
              document.body.style.backgroundImage='none';
-             document.body.style.backgroundColor="#e4ebe5";
+             document.body.style.backgroundColor="#b0b4f0";
              break; 
            default:
              break; 

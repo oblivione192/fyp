@@ -36,8 +36,8 @@ export default class ClinicDao {
   async getClinicByRegNo(regNo){
      const query = `
        SELECT ClinicId, name, address, 
-       ST_Y(location) as latitude, 
-       ST_X(location) as longitude
+       ST_X(location) as latitude, 
+       ST_Y(location) as longitude
        FROM clinic
        WHERE registration_no = ? 
      ` 
@@ -51,8 +51,8 @@ export default class ClinicDao {
   async listClinicByService(service_id) {
     const query = `
       SELECT c.ClinicId, c.name, c.address, cs.price, cs.duration_minutes,
-      ST_Y(c.location) as latitude, 
-      ST_X(c.location) as longitude 
+      ST_X(c.location) as latitude, 
+      ST_Y(c.location) as longitude 
       FROM ClinicService cs
       JOIN Clinic c ON cs.clinic_id = c.ClinicId
       WHERE cs.service_id = ?

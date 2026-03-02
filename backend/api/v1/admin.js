@@ -15,11 +15,9 @@ adminRouter.post("/register",async(req,res)=>{
       const password = req.body?.password;  
       
       const result =  await adminDao.createUser(username.trim(),clinicNo.trim(),password.trim()); 
-      if(result[0].affectedRows > 0 ){ 
-           return res.send({status:"Success"}); 
-      } 
-
-      return res.send({status:"Failure",message:"Error in creating"}); 
+  
+     return res.send({status:"Success"}); 
+    
     } 
     catch(err){
           return res.send({status:"Failure",message:err.message}); 

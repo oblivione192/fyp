@@ -1,6 +1,7 @@
 import express from 'express';  
 import ServiceDao from '../../dao/ServiceDao.js';
-import ClinicDao from '../../dao/ClinicDao.js'; 
+import ClinicDao from '../../dao/ClinicDao.js';    
+import distance from '../../rideRecommendUtils/distance.js';
 import fetch from 'node-fetch';
 const clinicRouter = express.Router();   
 const clinicDao = new ClinicDao(); 
@@ -16,38 +17,24 @@ clinicRouter.get("/getClinic", async function (req, res) {
   if (option === "ByService") {
     
 
-    if(process.env.NODE_ENV == "production"){ 
-            const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=3000&type=health&keyword=clinic&key=${process.env.GOOGLE_MAP_API_KEY}`;
+    if(process.env.NODE_ENV == "production"){  
+        try{
+          const clinicsWithDistance = await Promise.all(clinics.map(async (clinic) => {        
+               const calculatedDistance = await distance(lat, lng, clinic.latitude, clinic.longitude);
+               return {...clinic, distance: calculatedDistance}
+          })); 
+        
+          const filteredClinics = clinicsWithDistance.filter((clinic) => clinic.distance < 20000);
 
-            const response = await fetch(url);
-            const data = await response.json();
-            try{
-              if (data.status === "OK") { 
-                // Enrich DB clinics with Google photo reference
-                const enrichedClinics = clinics.map((clinic) => {
-                  const match = data.results.find(
-                    (place) => place.name.toLowerCase() === clinic.name.toLowerCase()
-                  );
-                  console.log(match.photos); 
-                  if (match && match.photos && match.photos.length > 0 && withPhoto) {
-                    clinic.photo_reference = match.photos[0].photo_reference; 
-                    console.log("Photo reference found for clinic ", clinic.name, clinic.photo_reference);
+          return res.send(filteredClinics); 
 
-                    // Optionally also build a direct photo URL
-                    clinic.photo_url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${match.photos[0].photo_reference}&key=${process.env.GOOGLE_MAP_API_KEY}`;
-                  }
+        }  
+        catch(err){    
 
-                  return clinic;
-                });
-
-                return res.send(enrichedClinics);
-              }
-
-              return res.status(500).send({ status: "failure", message: data.status }); 
-          }  
-          catch(err){
-              return res.status(500).send({message:"Failed to get clinics."}); 
-          } 
+           return res.status(500).send({status:"Failure",message:err.message})  
+            
+        }
+       
     } 
     else{  
         return res.send(clinics); 

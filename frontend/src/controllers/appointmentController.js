@@ -11,6 +11,7 @@ class AppointmentController{
      const data = await response.json(); 
      console.log(data); 
    }
+
    async addAppointment(data){
      const response = await fetch('/api/appointment/addAppointment',
       { 
@@ -19,9 +20,15 @@ class AppointmentController{
         body: JSON.stringify(data)
       }
     ) 
-    const result = await response.json(); 
+    const result = await response.json();   
+
+    if(!response.ok){
+       throw new Error(result.message || "Failed to book appointment.");
+    }  
+     
     return result; 
    }
+   
    async postponeAppointment(AppointmentId,SlotId,newStartTime,newEndTime){  
         
         const result = await fetch("/api/appointment/postponeAppointment",
@@ -108,25 +115,25 @@ class AppointmentController{
 
     async getAppointments(page,option){ 
      const query = new URLSearchParams(option);  
-     console.log(this.headers); 
-     const appointments = await fetch(`/api/appointment/getAppointment?${query}&page=${page}`,
-     { 
-      headers: this.headers 
-     }
-     )
-     .then((resp)=>{
-       return resp.json(); 
-     })
-     .then((data)=>{
-       return data
-     }) 
-     .catch((err)=>{
-       console.error(err);  
-       return []; 
-     })
-     
-     return appointments; 
-
+     console.log(this.headers);   
+     try{
+      const appointments = await fetch(`/api/appointment/getAppointment?${query}&page=${page}`,
+      { 
+        headers: this.headers 
+      }
+      )
+      .then((resp)=>{
+        return resp.json(); 
+      })   
+        
+      return appointments;  
+       
+    } 
+    catch(err){
+       throw new Error("Failed to fetch appointments: " + err.message);
+    }
+    
+  
     }
      async getUserAppointments(page){ 
     
@@ -146,7 +153,7 @@ class AppointmentController{
     }
      async getUpcomingAppointments(page){  
 
-      const appointments = fetch("/api/appointment/confirmedAppointments?page="+page,
+      const appointments = await fetch("/api/appointment/confirmedAppointments?page="+page,
             {
                headers: this.headers
             }

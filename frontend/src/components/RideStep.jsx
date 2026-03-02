@@ -4,8 +4,7 @@ import {Container,Col, Row, FormSelect, Card} from 'react-bootstrap';
 import calculateRidePrice from "../util/calculateRidePrice"; 
 import { Modal } from "react-bootstrap"
 import ListDisplayer from "./ListDisplayer";   
-import { showFormattedDate } from "../util/Time"; 
-import { showFormattedTime } from "../util/Time";
+import { showFormattedDate, showFormattedTime } from "../util/Time"; 
 import Event from "../util/eventBus";
 async function handleRideBooking({ staff_id, staff_vehicle_id, ride_timestamp, ride_end, destination_clinic_id }) {
   try {
@@ -45,8 +44,13 @@ function RideCard({ ride, onBook }) {
   const durationMins = Math.floor((ride.session_end_time - ride.session_start_time) / 60000);
   const waitingHrs = Math.floor(Math.abs(ride.time_margin) / 60);
   const waitingMins = Math.floor(Math.abs(ride.time_margin)) % 60;
-  return (
-    <Card>
+  return (  
+     
+    <Card>  
+      <span className="chip.success" style={{ position: 'absolute', top: '10px', right: '10px' }}>
+         Recommended
+      </span>  
+
       <Card.Body>
         <strong>
           {new Date(ride.session_start_time).toLocaleString(undefined, { timeStyle: 'short' })}
@@ -189,10 +193,10 @@ export default function RideStep({
             show={show}
             handleClose={() => setShowModal(false)}
           > 
-            <strong>Appointment Start Time: {showFormattedDate(appointmentStartTime)}</strong>
+            <strong>Appointment Start Time: {showFormattedTime(new Date(`${appointmentDate}T${appointmentStartTime}`))}</strong>
             <ListDisplayer data={rides}> 
              
-              {ride => (
+              {(ride) => (
                 <RideCard
                   ride={ride}
                   onBook={selected => {

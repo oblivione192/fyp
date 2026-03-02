@@ -30,7 +30,8 @@ app.use((req, res, next) => {
   
   if (
     req.path !== "/" && 
-    !req.path.match("/auth/*") &&
+    !req.path.match("/auth/*") && 
+    !req.path.match("/api/location") &&
     validRoutes.has(req.path)
   ) {
     const authHeader = req.headers.authorization; 

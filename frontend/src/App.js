@@ -8,11 +8,10 @@ import BookAppointment from './pages/user/BookAppointment.js';
 import HealthRecord from './pages/user/HealthRecord.js'; 
 import PatientProfile from './pages/user/PatientProfile.js'; 
 import MedicationPage from './pages/user/Medications.js';  
-import SlotManagement from './pages/admin/SlotManagement'; 
+import SlotManagement from './pages/admin/SlotManagement';   
+import AppointmentShow from './pages/user/AppointmentShow.js';
 
 import Login from './Login.js'; 
-import { getMessaging, onMessage } from 'firebase/messaging';  
-import app from './firebaseconfig/firebase-config.js';
 import Register from './Register.js';
 import RidesPage from './pages/user/MVARides.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -87,7 +86,7 @@ function AppRouter(){
       return <Navigate to="/login"/> 
    } 
    if(isLoggedIn && authRoute.includes(location.pathname)){
-     return <Navigate to="/home"/> 
+     return <Navigate to={location.pathname}/> 
    }
    else{
      return <><Navigate to={location.pathname}/></>
@@ -103,7 +102,8 @@ export default function App() {
         <Route path="/" element={<><Layout/><AppRouter/></>}>  
           <Route path="/slots" element={<PrivateRoute role="admin"><SlotManagement/></PrivateRoute>}/>
           <Route path="/home"  element={<PrivateRoute role={userRole}><Home/></PrivateRoute>} />  
-          <Route path="/appointment" element={<PrivateRoute role="user"><Appointment /></PrivateRoute>} /> 
+          <Route path="/appointment" element={<PrivateRoute role="user"><Appointment /></PrivateRoute>} />   
+          <Route path="/appointment/:appointmentId" element={<PrivateRoute role="user"><AppointmentShow/></PrivateRoute>} />
           <Route path="/patientAppointment" element={<PrivateRoute role="admin"><PatientAppointments/></PrivateRoute>}/>
           <Route path="/book" element={<PrivateRoute role="user"><BookAppointment /></PrivateRoute>} />    
           <Route path="/healthRecord" element={<PrivateRoute role="user"><HealthRecord/></PrivateRoute>} />  

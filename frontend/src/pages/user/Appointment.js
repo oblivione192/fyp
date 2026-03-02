@@ -5,8 +5,9 @@ import { AddAppointments, setChangesRead, InitAllAppointments,RemoveAppointment,
 import RideStep from '../../components/RideStep.jsx';    
 import { AppointmentProcedure } from './BookAppointment.js';
 import { Modal } from 'react-bootstrap';
-import { Card, Button, Form, InputGroup} from 'react-bootstrap';
-import { IoMdArrowBack } from "react-icons/io" ;  
+import { Card, Button, Form, InputGroup, Col} from 'react-bootstrap';
+import { IoMdArrowBack } from "react-icons/io" ;   
+import { FaArrowRight } from 'react-icons/fa';
 import Event from '../../util/eventBus.js';
 import InformationCard from '../../components/InformationCard.jsx';  
 import API from '../../controllers/index.js';
@@ -27,7 +28,8 @@ function formatData(formattedData){
          return{
             clinicId: data.clinicId,
             visit_purpose: data.visit_purpose,
-            AppointmentId: data.AppointmentId,
+            AppointmentId: data.AppointmentId,   
+            doctorName: data.doctorName,
             title : data.clinicName,
             imageSrc: data.imageSrc, 
             address: data.address,
@@ -291,10 +293,10 @@ function AppointmentList({ appointments }) {
                 return(
                 <InformationCard>  
                     { 
-                    appt.imageSrc && 
-                   <Card.Img 
-                     src={appt.imageSrc} 
-                     />  
+                        appt.imageSrc && 
+                        <Card.Img 
+                            src={appt.imageSrc} 
+                        />  
                     }
                    <Card.Title 
                     style={{
@@ -313,14 +315,33 @@ function AppointmentList({ appointments }) {
                    >
                         <footer style={{fontSize:'15px'}}>
                              <p>Slot: {appt.startTime}  to  {appt.endTime}</p> 
-                             <p>Address: {appt.address}</p>
+                             <p>Address: {appt.address}</p> 
+                             <p>Doctor in Charge: {appt.doctorName}</p>
                              <p><strong>{appt.visit_purpose} Session</strong></p>
                         </footer>
                    </Card.Footer>
                    {
                     activeTab === 'pending' && 
                     <AppointmentActionBar clinicId={appt.clinicId} AppointmentId={appt.AppointmentId}/>
-                  }
+                  }      
+                    <Col xs="auto">
+                     <div  
+                        onClick={()=>{navigate(`/appointment/${appt.AppointmentId}`)}}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.4rem",
+                            fontSize: "0.85rem",
+                            fontWeight: 600,
+                            color: "#2F6F4F",
+                            cursor: "pointer",
+                        }}
+                        >
+                        View Details
+                        <FaArrowRight size={12} />
+                        </div>
+                   </Col>
+                   
                 </InformationCard> 
                 )
                })
